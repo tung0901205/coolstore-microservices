@@ -1,0 +1,192 @@
+<!-- ============================================================
+     ĐẶT HÀNG - 2 bước
+     ============================================================ -->
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+  <!-- Progress steps -->
+  <div class="flex items-center justify-center gap-0 mb-8">
+    <div class="flex items-center gap-2"
+         [class.text-red-600]="buocHienTai >= 1" [class.text-gray-400]="buocHienTai < 1">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors"
+           [class]="buocHienTai >= 1 ? 'bg-red-600 border-red-600 text-white' : 'border-gray-300 text-gray-400'">1</div>
+      <span class="text-sm font-semibold hidden sm:block">Thông tin giao hàng</span>
+    </div>
+    <div class="h-px w-12 sm:w-20 mx-2"
+         [class]="buocHienTai >= 2 ? 'bg-red-400' : 'bg-gray-200'"></div>
+    <div class="flex items-center gap-2"
+         [class.text-red-600]="buocHienTai >= 2" [class.text-gray-400]="buocHienTai < 2">
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors"
+           [class]="buocHienTai >= 2 ? 'bg-red-600 border-red-600 text-white' : 'border-gray-300 text-gray-400'">2</div>
+      <span class="text-sm font-semibold hidden sm:block">Xác nhận & Thanh toán</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- ── BƯỚC 1: Form thông tin ──────────────────────────────── -->
+    <div class="lg:col-span-2">
+
+      <!-- BƯỚC 1 -->
+      <form *ngIf="buocHienTai === 1" [formGroup]="form" (ngSubmit)="qua_buoc2()">
+        <div class="cs-card p-6 space-y-5">
+          <h2 class="font-bold text-gray-900 text-lg flex items-center gap-2">
+            📍 Thông tin giao hàng
+          </h2>
+
+          <div>
+            <label class="form-label">Họ và tên người nhận *</label>
+            <input formControlName="hoTen" type="text"
+                   placeholder="Nguyễn Văn A" class="form-input"
+                   [class.border-red-400]="loi('hoTen','required')">
+            <p *ngIf="loi('hoTen','required')" class="form-error">Vui lòng nhập họ tên</p>
+          </div>
+
+          <div>
+            <label class="form-label">Số điện thoại *</label>
+            <input formControlName="soDienThoai" type="tel"
+                   placeholder="0901234567" class="form-input"
+                   [class.border-red-400]="loi('soDienThoai','pattern')">
+            <p *ngIf="loi('soDienThoai','required')" class="form-error">Vui lòng nhập số điện thoại</p>
+            <p *ngIf="loi('soDienThoai','pattern')" class="form-error">Số điện thoại không hợp lệ</p>
+          </div>
+
+          <div>
+            <label class="form-label">Địa chỉ giao hàng *</label>
+            <textarea formControlName="diaChiGiaoHang" rows="3"
+                      placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
+                      class="form-input resize-none"
+                      [class.border-red-400]="loi('diaChiGiaoHang','required')"></textarea>
+            <p *ngIf="loi('diaChiGiaoHang','required')" class="form-error">Vui lòng nhập địa chỉ</p>
+          </div>
+
+          <div>
+            <label class="form-label">Phương thức thanh toán *</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+              <!-- VNPay -->
+              <label class="relative flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all"
+                     [class]="form.get('phuongThucThanhToan')?.value === 'VNPAY'
+                       ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'">
+                <input type="radio" formControlName="phuongThucThanhToan" value="VNPAY" class="sr-only">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span class="text-white text-xs font-black">VN</span>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-800 text-sm">VNPay</p>
+                  <p class="text-gray-400 text-xs">Thanh toán online an toàn</p>
+                </div>
+                <div *ngIf="form.get('phuongThucThanhToan')?.value === 'VNPAY'"
+                     class="absolute top-2 right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                  <span class="text-white text-xs">✓</span>
+                </div>
+              </label>
+              <!-- COD -->
+              <label class="relative flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all"
+                     [class]="form.get('phuongThucThanhToan')?.value === 'TIEN_MAT'
+                       ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'">
+                <input type="radio" formControlName="phuongThucThanhToan" value="TIEN_MAT" class="sr-only">
+                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span class="text-white text-lg">💵</span>
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-800 text-sm">Tiền mặt (COD)</p>
+                  <p class="text-gray-400 text-xs">Thanh toán khi nhận hàng</p>
+                </div>
+                <div *ngIf="form.get('phuongThucThanhToan')?.value === 'TIEN_MAT'"
+                     class="absolute top-2 right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                  <span class="text-white text-xs">✓</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label">Ghi chú <span class="text-gray-400 font-normal">(tùy chọn)</span></label>
+            <textarea formControlName="ghiChu" rows="2"
+                      placeholder="Ghi chú cho người giao hàng..."
+                      class="form-input resize-none"></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary w-full py-3.5 text-base">
+            Tiếp tục → Xác nhận đơn hàng
+          </button>
+        </div>
+      </form>
+
+      <!-- BƯỚC 2: Xác nhận -->
+      <div *ngIf="buocHienTai === 2" class="cs-card p-6 space-y-5">
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-gray-900 text-lg">✅ Xác nhận đơn hàng</h2>
+          <button (click)="quayLai()" class="text-sm text-red-600 hover:underline">← Sửa thông tin</button>
+        </div>
+
+        <!-- Thông tin giao hàng -->
+        <div class="bg-gray-50 rounded-xl p-4 text-sm space-y-1">
+          <p class="font-semibold text-gray-800 mb-2">📦 Thông tin giao hàng</p>
+          <p class="text-gray-600"><span class="font-medium">Người nhận:</span> {{ form.get('hoTen')?.value }}</p>
+          <p class="text-gray-600"><span class="font-medium">SĐT:</span> {{ form.get('soDienThoai')?.value }}</p>
+          <p class="text-gray-600"><span class="font-medium">Địa chỉ:</span> {{ form.get('diaChiGiaoHang')?.value }}</p>
+          <p class="text-gray-600"><span class="font-medium">Thanh toán:</span>
+            {{ form.get('phuongThucThanhToan')?.value === 'VNPAY' ? '💳 VNPay' : '💵 Tiền mặt (COD)' }}
+          </p>
+          <p *ngIf="form.get('ghiChu')?.value" class="text-gray-600">
+            <span class="font-medium">Ghi chú:</span> {{ form.get('ghiChu')?.value }}
+          </p>
+        </div>
+
+        <!-- Danh sách sản phẩm -->
+        <div class="space-y-2">
+          <p class="font-semibold text-gray-800 text-sm">🛍️ Sản phẩm ({{ cart.items.length }})</p>
+          <div *ngFor="let item of cart.items"
+               class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
+            <img [src]="anh(item.image || item.product)" [alt]="item.name"
+                 class="w-12 h-12 object-cover rounded-lg border border-gray-100">
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-sm text-gray-800 truncate">{{ item.name }}</p>
+              <p class="text-gray-400 text-xs">x{{ item.quantity }}</p>
+            </div>
+            <span class="text-gray-700 font-semibold text-sm">
+              {{ item.price * item.quantity | currency:'USD' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- VNPay notice -->
+        <div *ngIf="form.get('phuongThucThanhToan')?.value === 'VNPAY'"
+             class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-700">
+          <p class="font-semibold mb-1">💳 Thanh toán qua VNPay</p>
+          <p>Sau khi nhấn "Đặt hàng", bạn sẽ được chuyển đến cổng thanh toán VNPay để hoàn tất.</p>
+          <p class="mt-1 text-blue-500 text-xs">Thẻ test: NCB - 9704198526191432198 / NGUYEN VAN A / 07/15 / OTP: 123456</p>
+        </div>
+
+        <button (click)="datHang()" [disabled]="dangGui"
+                class="btn-primary w-full py-4 text-base flex items-center justify-center gap-2">
+          <span *ngIf="dangGui" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          {{ dangGui ? 'Đang xử lý...' : (form.get('phuongThucThanhToan')?.value === 'VNPAY' ? '💳 Đặt hàng & Thanh toán VNPay' : '🛵 Đặt hàng (COD)') }}
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Tóm tắt đơn hàng (cố định) -->
+    <div>
+      <div class="cs-card p-5 sticky top-20">
+        <h3 class="font-bold text-gray-900 mb-4 pb-3 border-b">📋 Đơn hàng của bạn</h3>
+        <div *ngFor="let item of cart.items" class="flex justify-between text-sm py-1.5 text-gray-600">
+          <span class="truncate pr-2">{{ item.name }} ×{{ item.quantity }}</span>
+          <span class="flex-shrink-0 font-medium">{{ item.price * item.quantity | currency:'USD' }}</span>
+        </div>
+        <div class="border-t mt-3 pt-3 space-y-1 text-sm">
+          <div class="flex justify-between text-gray-500">
+            <span>Phí vận chuyển</span>
+            <span class="text-green-600">Miễn phí</span>
+          </div>
+          <div class="flex justify-between font-bold text-base text-gray-900 pt-1">
+            <span>Tổng cộng</span>
+            <span class="text-red-600">{{ tongTien | currency:'USD' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

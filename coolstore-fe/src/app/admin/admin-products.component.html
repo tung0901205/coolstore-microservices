@@ -1,0 +1,191 @@
+<!-- ADMIN - QUẢN LÝ SẢN PHẨM -->
+<div class="p-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">📦 Quản lý sản phẩm</h1>
+      <p class="text-gray-500 text-sm mt-0.5">{{ filtered.length }} sản phẩm</p>
+    </div>
+    <button (click)="moModalThem()" class="btn-primary py-2.5 px-5 text-sm">
+      ➕ Thêm sản phẩm
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex gap-3 mb-5 flex-wrap">
+    <input [(ngModel)]="search" (ngModelChange)="loc()"
+           placeholder="🔍 Tìm sản phẩm..."
+           class="form-input w-64 py-2 text-sm">
+    <select [(ngModel)]="catFilter" (ngModelChange)="loc()"
+            class="form-input w-40 py-2 text-sm cursor-pointer">
+      <option value="">Tất cả danh mục</option>
+      <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+    </select>
+    <button *ngIf="search || catFilter" (click)="search=''; catFilter=''; loc()"
+            class="px-3 py-2 text-sm text-red-500 border border-red-200 rounded-xl hover:bg-red-50">
+      ✕ Xóa lọc
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="cs-card overflow-hidden">
+    <!-- Loading skeleton -->
+    <div *ngIf="dangTai" class="p-6 space-y-3">
+      <div *ngFor="let i of [1,2,3,4,5]" class="flex gap-4 items-center">
+        <div class="skeleton w-12 h-12 rounded-lg"></div>
+        <div class="flex-1 space-y-2">
+          <div class="skeleton h-4 w-1/3"></div>
+          <div class="skeleton h-3 w-1/4"></div>
+        </div>
+        <div class="skeleton h-4 w-16"></div>
+        <div class="skeleton h-4 w-20"></div>
+      </div>
+    </div>
+
+    <div *ngIf="!dangTai" class="overflow-x-auto">
+      <table class="cs-table">
+        <thead>
+        <tr>
+          <th>Sản phẩm</th>
+          <th>Danh mục</th>
+          <th>Giá</th>
+          <th>Tồn kho</th>
+          <th class="text-right">Thao tác</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let p of filtered">
+          <td>
+            <div class="flex items-center gap-3">
+              <img [src]="anh(p.image)" [alt]="p.title"
+                   class="w-12 h-12 object-cover rounded-xl border border-gray-100 flex-shrink-0">
+              <div>
+                <p class="font-semibold text-gray-800 text-sm max-w-xs truncate">{{ p.title }}</p>
+                <p class="text-gray-400 text-xs font-mono">{{ p.itemId }}</p>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge badge-info capitalize text-xs">{{ p.category }}</span>
+          </td>
+          <td>
+            <span class="font-bold text-gray-800">{{ p.price | currency:'USD' }}</span>
+          </td>
+          <td>
+              <span class="font-medium text-sm"
+                    [class]="p.quantity === 0 ? 'text-red-500' : p.quantity <= 10 ? 'text-orange-500' : 'text-green-600'">
+                {{ p.quantity === 0 ? '⚠️ Hết hàng' : p.quantity + ' cái' }}
+              </span>
+          </td>
+          <td>
+            <div class="flex justify-end gap-2">
+              <button (click)="moModalSua(p)"
+                      class="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                ✏️ Sửa
+              </button>
+              <button (click)="moXac(p)"
+                      class="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+                🗑️ Xóa
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="5" class="text-center text-gray-400 py-12">
+            <div class="empty-state py-6">
+              <div class="empty-state-icon">📦</div>
+              <p class="empty-state-text">Không tìm thấy sản phẩm</p>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL THÊM/SỬA ──────────────────────────────────────── -->
+<div *ngIf="hienModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+      <h2 class="font-bold text-gray-900 text-lg">{{ dangSua ? '✏️ Sửa sản phẩm' : '➕ Thêm sản phẩm mới' }}</h2>
+      <button (click)="dongModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">✕</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="luu()" class="p-6 space-y-4">
+      <div *ngIf="!dangSua">
+        <label class="form-label">Mã sản phẩm <span class="text-gray-400 font-normal">(tùy chọn, tự tạo nếu để trống)</span></label>
+        <input formControlName="itemId" type="text" placeholder="Ví dụ: 329299" class="form-input">
+      </div>
+
+      <div>
+        <label class="form-label">Tên sản phẩm *</label>
+        <input formControlName="title" type="text" placeholder="Nhập tên sản phẩm..." class="form-input"
+               [class.border-red-400]="loi('title','required')">
+        <p *ngIf="loi('title','required')" class="form-error">Bắt buộc</p>
+      </div>
+
+      <div>
+        <label class="form-label">Mô tả *</label>
+        <textarea formControlName="desc" rows="3" placeholder="Mô tả sản phẩm..."
+                  class="form-input resize-none"
+                  [class.border-red-400]="loi('desc','required')"></textarea>
+        <p *ngIf="loi('desc','required')" class="form-error">Bắt buộc</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="form-label">Giá (USD) *</label>
+          <input formControlName="price" type="number" step="0.01" min="0" placeholder="0.00"
+                 class="form-input" [class.border-red-400]="loi('price','min')">
+          <p *ngIf="loi('price','required')" class="form-error">Bắt buộc</p>
+        </div>
+        <div>
+          <label class="form-label">Danh mục *</label>
+          <input formControlName="category" type="text" placeholder="Ví dụ: Gear" class="form-input"
+                 list="cat-list"
+                 [class.border-red-400]="loi('category','required')">
+          <datalist id="cat-list">
+            <option *ngFor="let c of categories" [value]="c"></option>
+          </datalist>
+          <p *ngIf="loi('category','required')" class="form-error">Bắt buộc</p>
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label">Hình ảnh <span class="text-gray-400 font-normal">(URL hoặc tên file trong /assets)</span></label>
+        <input formControlName="image" type="text" placeholder="https://... hoặc product.jpg" class="form-input">
+        <!-- Preview -->
+        <img *ngIf="form.get('image')?.value" [src]="anh(form.get('image')?.value)"
+             class="mt-2 w-20 h-20 object-cover rounded-xl border border-gray-200">
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="button" (click)="dongModal()" class="btn-secondary flex-1 py-3">Hủy</button>
+        <button type="submit" [disabled]="dangLuu" class="btn-primary flex-1 py-3 flex items-center justify-center gap-2">
+          <span *ngIf="dangLuu" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          {{ dangLuu ? 'Đang lưu...' : (dangSua ? '💾 Cập nhật' : '➕ Thêm mới') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── MODAL XÁC NHẬN XÓA ─────────────────────────────────── -->
+<div *ngIf="hienXoa" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <span class="text-3xl">🗑️</span>
+    </div>
+    <h3 class="font-bold text-gray-900 text-lg mb-2">Xác nhận xóa?</h3>
+    <p class="text-gray-500 text-sm mb-6">
+      Bạn sẽ xóa sản phẩm <strong class="text-gray-800">{{ xoaTen }}</strong>.<br>
+      Hành động này không thể hoàn tác.
+    </p>
+    <div class="flex gap-3">
+      <button (click)="dongXac()" class="btn-secondary flex-1 py-2.5">Hủy</button>
+      <button (click)="xoa()" class="btn-danger flex-1 py-2.5">Xóa sản phẩm</button>
+    </div>
+  </div>
+</div>

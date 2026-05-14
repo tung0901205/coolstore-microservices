@@ -1,0 +1,172 @@
+<!-- ============================================================
+     TRANG ĐĂNG NHẬP / ĐĂNG KÝ
+     ============================================================ -->
+<div class="min-h-screen bg-gradient-to-br from-red-50 to-gray-100 flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-red-600 rounded-2xl shadow-lg mb-4">
+        <span class="text-white font-black text-3xl">C</span>
+      </div>
+      <h1 class="text-2xl font-black text-gray-900">COOLSTORE</h1>
+      <p class="text-gray-500 text-sm mt-1">Mua sắm thông minh, giá tốt nhất</p>
+    </div>
+
+    <!-- Card -->
+    <div class="cs-card p-8">
+
+      <!-- Tab chuyển đổi -->
+      <div class="flex bg-gray-100 rounded-xl p-1 mb-8">
+        <button (click)="cheDoHienTai='dang-nhap'"
+                class="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all"
+                [class]="cheDoHienTai === 'dang-nhap'
+                  ? 'bg-white text-red-600 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'">
+          Đăng nhập
+        </button>
+        <button (click)="cheDoHienTai='dang-ky'"
+                class="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all"
+                [class]="cheDoHienTai === 'dang-ky'
+                  ? 'bg-white text-red-600 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'">
+          Đăng ký
+        </button>
+      </div>
+
+      <!-- ── FORM ĐĂNG NHẬP ─────────────────────────────────── -->
+      <form *ngIf="cheDoHienTai === 'dang-nhap'"
+            [formGroup]="formDangNhap"
+            (ngSubmit)="guiDangNhap()"
+            class="space-y-5">
+
+        <div>
+          <label class="form-label">Tên đăng nhập hoặc email</label>
+          <input formControlName="username"
+                 type="text"
+                 placeholder="Nhập tên đăng nhập..."
+                 autocomplete="username"
+                 class="form-input"
+                 [class.border-red-400]="hasError(formDangNhap, 'username', 'required')">
+          <p *ngIf="hasError(formDangNhap, 'username', 'required')" class="form-error">
+            Vui lòng nhập tên đăng nhập
+          </p>
+        </div>
+
+        <div>
+          <label class="form-label">Mật khẩu</label>
+          <div class="relative">
+            <input formControlName="password"
+                   [type]="hienMatKhau ? 'text' : 'password'"
+                   placeholder="Nhập mật khẩu..."
+                   autocomplete="current-password"
+                   class="form-input pr-11"
+                   [class.border-red-400]="hasError(formDangNhap, 'password', 'required')">
+            <button type="button"
+                    (click)="hienMatKhau = !hienMatKhau"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              {{ hienMatKhau ? '🙈' : '👁️' }}
+            </button>
+          </div>
+          <p *ngIf="hasError(formDangNhap, 'password', 'required')" class="form-error">
+            Vui lòng nhập mật khẩu
+          </p>
+        </div>
+
+        <button type="submit"
+                [disabled]="dangGui"
+                class="btn-primary w-full py-3 flex items-center justify-center gap-2">
+          <span *ngIf="dangGui" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          {{ dangGui ? 'Đang đăng nhập...' : '🔐 Đăng nhập' }}
+        </button>
+
+        <!-- Demo account info -->
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-700">
+          <p class="font-semibold mb-1">💡 Tài khoản demo:</p>
+          <p>Admin: <code class="bg-blue-100 px-1 rounded">admin</code> / <code class="bg-blue-100 px-1 rounded">Admin@123</code></p>
+          <p>User: <code class="bg-blue-100 px-1 rounded">nguyenvana</code> / <code class="bg-blue-100 px-1 rounded">Admin@123</code></p>
+        </div>
+      </form>
+
+      <!-- ── FORM ĐĂNG KÝ ───────────────────────────────────── -->
+      <form *ngIf="cheDoHienTai === 'dang-ky'"
+            [formGroup]="formDangKy"
+            (ngSubmit)="guiDangKy()"
+            class="space-y-4">
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-2">
+            <label class="form-label">Họ và tên</label>
+            <input formControlName="fullName"
+                   type="text"
+                   placeholder="Nguyễn Văn A"
+                   class="form-input"
+                   [class.border-red-400]="hasError(formDangKy, 'fullName', 'required')">
+            <p *ngIf="hasError(formDangKy, 'fullName', 'required')" class="form-error">Vui lòng nhập họ tên</p>
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            <label class="form-label">Tên đăng nhập</label>
+            <input formControlName="username"
+                   type="text"
+                   placeholder="ten_dang_nhap"
+                   class="form-input"
+                   [class.border-red-400]="formDangKy.get('username')?.invalid && formDangKy.get('username')?.touched">
+            <p *ngIf="hasError(formDangKy, 'username', 'required')" class="form-error">Bắt buộc</p>
+            <p *ngIf="hasError(formDangKy, 'username', 'pattern')" class="form-error">Chỉ chữ, số, dấu _</p>
+            <p *ngIf="hasError(formDangKy, 'username', 'minlength')" class="form-error">Tối thiểu 3 ký tự</p>
+          </div>
+
+          <div class="col-span-2 sm:col-span-1">
+            <label class="form-label">Email</label>
+            <input formControlName="email"
+                   type="email"
+                   placeholder="email@example.com"
+                   class="form-input"
+                   [class.border-red-400]="hasError(formDangKy, 'email', 'email')">
+            <p *ngIf="hasError(formDangKy, 'email', 'required')" class="form-error">Bắt buộc</p>
+            <p *ngIf="hasError(formDangKy, 'email', 'email')" class="form-error">Email không hợp lệ</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label">Mật khẩu</label>
+          <input formControlName="password"
+                 [type]="hienMatKhau ? 'text' : 'password'"
+                 placeholder="Ít nhất 6 ký tự"
+                 class="form-input"
+                 [class.border-red-400]="hasError(formDangKy, 'password', 'minlength')">
+          <p *ngIf="hasError(formDangKy, 'password', 'minlength')" class="form-error">Mật khẩu phải có ít nhất 6 ký tự</p>
+        </div>
+
+        <div>
+          <label class="form-label">Xác nhận mật khẩu</label>
+          <input formControlName="xacNhanMatKhau"
+                 [type]="hienMatKhau ? 'text' : 'password'"
+                 placeholder="Nhập lại mật khẩu"
+                 class="form-input"
+                 [class.border-red-400]="formDangKy.errors?.['matKhauKhongKhop'] && formDangKy.get('xacNhanMatKhau')?.touched">
+          <p *ngIf="formDangKy.errors?.['matKhauKhongKhop'] && formDangKy.get('xacNhanMatKhau')?.touched"
+             class="form-error">Mật khẩu không khớp</p>
+        </div>
+
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" (change)="hienMatKhau = !hienMatKhau" class="rounded">
+          <span class="text-sm text-gray-600">Hiển thị mật khẩu</span>
+        </label>
+
+        <button type="submit"
+                [disabled]="dangGui"
+                class="btn-primary w-full py-3 flex items-center justify-center gap-2">
+          <span *ngIf="dangGui" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          {{ dangGui ? 'Đang xử lý...' : '✅ Tạo tài khoản' }}
+        </button>
+      </form>
+
+    </div><!-- end card -->
+
+    <p class="text-center text-gray-400 text-xs mt-6">
+      Bằng cách đăng ký, bạn đồng ý với điều khoản sử dụng của CoolStore.
+    </p>
+  </div>
+</div>

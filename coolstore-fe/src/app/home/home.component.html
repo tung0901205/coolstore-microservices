@@ -1,0 +1,179 @@
+<!-- ============================================================
+     TRANG CHỦ - Danh sách sản phẩm
+     ============================================================ -->
+
+<!-- Hero Banner -->
+<div class="bg-gradient-to-r from-red-700 via-red-600 to-red-500 text-white py-12">
+  <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-8">
+    <div class="flex-1">
+      <p class="text-red-200 text-sm font-semibold uppercase tracking-widest mb-2">🔥 Khuyến mãi hôm nay</p>
+      <h1 class="text-4xl font-black mb-3 leading-tight">
+        Mua sắm thông minh<br>
+        <span class="text-yellow-300">Giá tốt nhất</span>
+      </h1>
+      <p class="text-red-100 mb-6">Hàng nghìn sản phẩm chính hãng với giá cạnh tranh nhất thị trường.</p>
+      <!-- Search bar lớn trong hero -->
+      <div class="flex gap-2 max-w-lg">
+        <input [(ngModel)]="tuKhoanTimKiem"
+               (ngModelChange)="timKiem()"
+               placeholder="🔍 Tìm sản phẩm bạn cần..."
+               class="flex-1 px-4 py-3 rounded-xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-300">
+        <button (click)="timKiem()" class="px-5 py-3 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold rounded-xl transition-colors text-sm">
+          Tìm
+        </button>
+      </div>
+    </div>
+    <div class="hidden md:block text-9xl opacity-20 select-none">🛍️</div>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div class="max-w-7xl mx-auto px-4 py-8">
+  <div class="flex gap-6">
+
+    <!-- ── SIDEBAR: Danh mục ──────────────────────────────────── -->
+    <aside class="hidden lg:block w-56 flex-shrink-0">
+      <div class="cs-card p-4 sticky top-20">
+        <h3 class="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wide">📂 Danh mục</h3>
+        <ul class="space-y-1">
+          <li>
+            <button (click)="locTheoCategory('')"
+                    class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors"
+                    [class]="!danhMucDuocChon ? 'bg-red-50 text-red-700 font-semibold' : 'text-gray-600 hover:bg-gray-50'">
+              Tất cả sản phẩm
+            </button>
+          </li>
+          <li *ngFor="let cat of danhMuc">
+            <button (click)="locTheoCategory(cat)"
+                    class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors capitalize"
+                    [class]="danhMucDuocChon === cat ? 'bg-red-50 text-red-700 font-semibold' : 'text-gray-600 hover:bg-gray-50'">
+              {{ cat }}
+            </button>
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- ── MAIN: Sản phẩm ─────────────────────────────────────── -->
+    <div class="flex-1 min-w-0">
+
+      <!-- Toolbar -->
+      <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+        <div>
+          <h2 class="font-bold text-gray-900 text-lg">
+            {{ danhMucDuocChon ? danhMucDuocChon : 'Tất cả sản phẩm' }}
+          </h2>
+          <p class="text-gray-500 text-sm">{{ sanPhamHienThi.length }} sản phẩm</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- Mobile: search inline -->
+          <input [(ngModel)]="tuKhoanTimKiem"
+                 (ngModelChange)="timKiem()"
+                 placeholder="Tìm kiếm..."
+                 class="lg:hidden form-input w-44 py-2 text-sm">
+
+          <!-- Sắp xếp -->
+          <select [(ngModel)]="sapXepTheo"
+                  (ngModelChange)="locVaSapXep()"
+                  class="form-input w-auto py-2 text-sm cursor-pointer">
+            <option value="mac-dinh">Mặc định</option>
+            <option value="gia-tang">Giá tăng dần</option>
+            <option value="gia-giam">Giá giảm dần</option>
+            <option value="ten-az">Tên A-Z</option>
+          </select>
+
+          <button *ngIf="danhMucDuocChon || tuKhoanTimKiem"
+                  (click)="resetFilter()"
+                  class="px-3 py-2 text-sm text-red-600 border border-red-200 rounded-xl hover:bg-red-50 transition-colors">
+            ✕ Xóa lọc
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading Skeleton -->
+      <div *ngIf="dangTai" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div *ngFor="let i of [1,2,3,4,5,6,7,8]" class="cs-card p-0 overflow-hidden">
+          <div class="skeleton h-52 w-full"></div>
+          <div class="p-4 space-y-2">
+            <div class="skeleton h-4 w-3/4"></div>
+            <div class="skeleton h-4 w-1/2"></div>
+            <div class="skeleton h-8 w-full mt-2"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Không có sản phẩm -->
+      <div *ngIf="!dangTai && sanPhamHienThi.length === 0" class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <p class="empty-state-text">Không tìm thấy sản phẩm</p>
+        <p class="empty-state-sub">Thử tìm kiếm với từ khóa khác</p>
+        <button (click)="resetFilter()" class="btn-primary mt-4 text-sm py-2 px-5">
+          Xem tất cả sản phẩm
+        </button>
+      </div>
+
+      <!-- Grid sản phẩm -->
+      <div *ngIf="!dangTai && sanPhamTrangHienTai.length > 0"
+           class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div *ngFor="let product of sanPhamTrangHienTai"
+             class="product-card">
+          <!-- Ảnh sản phẩm -->
+          <div class="overflow-hidden relative">
+            <img [src]="anhSanPham(product.image)"
+                 [alt]="product.title"
+                 class="product-card-img"
+                 loading="lazy"
+                 onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+            <!-- Badge số lượng -->
+            <span *ngIf="product.quantity === 0"
+                  class="absolute top-2 left-2 badge badge-danger">Hết hàng</span>
+            <span *ngIf="product.quantity > 0 && product.quantity <= 10"
+                  class="absolute top-2 left-2 badge badge-warning">Sắp hết</span>
+          </div>
+
+          <!-- Info -->
+          <div class="p-4">
+            <p class="text-xs text-red-500 font-medium uppercase tracking-wide mb-1">{{ product.category }}</p>
+            <h3 class="font-semibold text-gray-800 text-sm leading-tight line-clamp-2 mb-2 min-h-[2.5rem]">
+              {{ product.title }}
+            </h3>
+            <div class="flex items-center justify-between mt-auto">
+              <span class="text-red-600 font-bold text-base">
+                {{ formatGia(product.price) }}
+              </span>
+              <span class="text-gray-400 text-xs">Còn {{ product.quantity }}</span>
+            </div>
+            <button (click)="themVaoGio(product)"
+                    [disabled]="product.quantity === 0"
+                    class="btn-primary w-full mt-3 py-2 text-sm">
+              {{ product.quantity === 0 ? 'Hết hàng' : '🛒 Thêm vào giỏ' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phân trang -->
+      <div *ngIf="tongSoTrang > 1" class="flex justify-center items-center gap-2 mt-8">
+        <button (click)="trangHienTai = trangHienTai - 1"
+                [disabled]="trangHienTai === 1"
+                class="px-3 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 hover:bg-gray-50">
+          ‹ Trước
+        </button>
+        <button *ngFor="let trang of danhSachTrang"
+                (click)="trangHienTai = trang"
+                class="w-9 h-9 rounded-lg text-sm font-medium transition-colors"
+                [class]="trang === trangHienTai
+                  ? 'bg-red-600 text-white'
+                  : 'border border-gray-200 text-gray-600 hover:bg-gray-50'">
+          {{ trang }}
+        </button>
+        <button (click)="trangHienTai = trangHienTai + 1"
+                [disabled]="trangHienTai === tongSoTrang"
+                class="px-3 py-2 rounded-lg border border-gray-200 text-sm disabled:opacity-40 hover:bg-gray-50">
+          Sau ›
+        </button>
+      </div>
+
+    </div><!-- end main -->
+  </div><!-- end flex -->
+</div>

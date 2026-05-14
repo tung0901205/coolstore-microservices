@@ -1,0 +1,139 @@
+<!-- ============================================================
+     GIỎ HÀNG
+     ============================================================ -->
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">🛒 Giỏ hàng</h1>
+    <a routerLink="/" class="text-red-600 hover:text-red-700 text-sm font-medium flex items-center gap-1">
+      ← Tiếp tục mua sắm
+    </a>
+  </div>
+
+  <!-- Giỏ rỗng -->
+  <div *ngIf="cart.items.length === 0" class="empty-state">
+    <div class="empty-state-icon">🛒</div>
+    <p class="empty-state-text">Giỏ hàng của bạn đang trống</p>
+    <p class="empty-state-sub">Hãy chọn những sản phẩm yêu thích!</p>
+    <a routerLink="/" class="btn-primary mt-5 inline-block py-2.5 px-6 text-sm">
+      🛍️ Mua sắm ngay
+    </a>
+  </div>
+
+  <!-- Có sản phẩm trong giỏ -->
+  <div *ngIf="cart.items.length > 0" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Danh sách sản phẩm -->
+    <div class="lg:col-span-2 space-y-3">
+      <!-- Header table -->
+      <div class="cs-card px-5 py-3 hidden md:grid grid-cols-12 gap-4 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+        <div class="col-span-6">Sản phẩm</div>
+        <div class="col-span-2 text-center">Đơn giá</div>
+        <div class="col-span-3 text-center">Số lượng</div>
+        <div class="col-span-1 text-right"></div>
+      </div>
+
+      <!-- Từng item -->
+      <div *ngFor="let item of cart.items; let i = index"
+           class="cs-card p-4 grid grid-cols-12 gap-4 items-center">
+        <!-- Ảnh + Tên -->
+        <div class="col-span-12 md:col-span-6 flex items-center gap-3">
+          <img [src]="anhSanPham(item.image || item.product)"
+               [alt]="item.name"
+               class="w-16 h-16 object-cover rounded-xl border border-gray-100 flex-shrink-0"
+               onerror="this.src='https://via.placeholder.com/64x64?text=SP'">
+          <div class="min-w-0">
+            <p class="font-semibold text-gray-800 text-sm leading-tight truncate">{{ item.name }}</p>
+            <!-- Hiển thị giá trên mobile -->
+            <p class="text-red-600 font-bold text-sm md:hidden mt-1">
+              {{ item.price | currency:'USD' }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Đơn giá (desktop) -->
+        <div class="hidden md:block md:col-span-2 text-center">
+          <span class="font-semibold text-gray-700 text-sm">{{ item.price | currency:'USD' }}</span>
+        </div>
+
+        <!-- Điều chỉnh số lượng -->
+        <div class="col-span-8 md:col-span-3 flex items-center justify-center gap-1">
+          <button (click)="giamSoLuong(item)"
+                  class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors font-bold">
+            −
+          </button>
+          <span class="w-10 text-center font-bold text-gray-800">{{ item.quantity }}</span>
+          <button (click)="tangSoLuong(item)"
+                  class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors font-bold">
+            +
+          </button>
+          <!-- Thành tiền mobile -->
+          <span class="md:hidden ml-2 text-xs text-gray-500">
+            = {{ item.price * item.quantity | currency:'USD' }}
+          </span>
+        </div>
+
+        <!-- Xóa -->
+        <div class="col-span-4 md:col-span-1 flex justify-end">
+          <button (click)="xoaKhoiGio(item)"
+                  class="btn-icon text-red-400 hover:text-red-600 hover:bg-red-50"
+                  title="Xóa sản phẩm">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      <!-- Xóa tất cả -->
+      <div class="flex justify-end">
+        <button (click)="xoaTatCa()"
+                class="text-sm text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1">
+          🗑️ Xóa tất cả sản phẩm
+        </button>
+      </div>
+    </div>
+
+    <!-- Tóm tắt đơn hàng -->
+    <div class="lg:col-span-1">
+      <div class="cs-card p-5 sticky top-20">
+        <h2 class="font-bold text-gray-900 text-base mb-4 pb-3 border-b border-gray-100">
+          📋 Tóm tắt đơn hàng
+        </h2>
+
+        <div class="space-y-3 text-sm mb-4">
+          <div class="flex justify-between text-gray-600">
+            <span>Tạm tính ({{ cart.items.length }} sản phẩm)</span>
+            <span>{{ tinhTong() | currency:'USD' }}</span>
+          </div>
+          <div class="flex justify-between text-gray-600">
+            <span>Phí vận chuyển</span>
+            <span class="text-green-600 font-medium">Miễn phí</span>
+          </div>
+          <div class="border-t border-gray-100 pt-3 flex justify-between font-bold text-base text-gray-900">
+            <span>Tổng cộng</span>
+            <span class="text-red-600 text-lg">{{ tinhTong() | currency:'USD' }}</span>
+          </div>
+        </div>
+
+        <!-- Khuyến mại -->
+        <div class="bg-green-50 border border-green-100 rounded-xl p-3 mb-4 text-xs text-green-700">
+          🎉 Bạn được <strong>miễn phí vận chuyển</strong> cho đơn hàng này!
+        </div>
+
+        <button (click)="datHang()" class="btn-primary w-full py-3.5 text-base">
+          💳 Tiến hành đặt hàng
+        </button>
+
+        <!-- Thanh toán an toàn -->
+        <div class="mt-4 text-center">
+          <p class="text-xs text-gray-400 mb-2">🔒 Thanh toán an toàn & bảo mật</p>
+          <div class="flex justify-center gap-2">
+            <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded">VNPay</span>
+            <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded">SSL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end grid -->
+</div>

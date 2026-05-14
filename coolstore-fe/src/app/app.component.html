@@ -1,0 +1,129 @@
+<!-- ============================================================
+     APP COMPONENT - Navigation Bar + Router Outlet
+     ============================================================ -->
+<div class="min-h-screen bg-gray-50 flex flex-col">
+
+  <!-- ── NAVBAR ─────────────────────────────────────────────── -->
+  <nav class="bg-red-700 shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Logo -->
+        <div class="flex items-center gap-3">
+          <a routerLink="/" class="flex items-center gap-2 text-white no-underline">
+            <div class="w-9 h-9 bg-white rounded-lg flex items-center justify-center">
+              <span class="text-red-700 font-black text-lg">C</span>
+            </div>
+            <div>
+              <div class="font-black text-lg leading-none tracking-wide">COOLSTORE</div>
+              <div class="text-red-200 text-xs leading-none">Mua sắm thông minh</div>
+            </div>
+          </a>
+        </div>
+
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex items-center gap-1">
+          <a routerLink="/" routerLinkActive="bg-red-800"
+             class="nav-link">🏠 Trang chủ</a>
+          <a routerLink="/gio-hang" routerLinkActive="bg-red-800"
+             class="nav-link relative">
+            🛒 Giỏ hàng
+            <span *ngIf="soLuongGioHang > 0"
+                  class="absolute -top-1 -right-1 bg-yellow-400 text-gray-900 rounded-full text-xs font-bold w-5 h-5 flex items-center justify-center">
+              {{ soLuongGioHang > 9 ? '9+' : soLuongGioHang }}
+            </span>
+          </a>
+          <a *ngIf="nguoiDung" routerLink="/don-hang" routerLinkActive="bg-red-800"
+             class="nav-link">📦 Đơn hàng</a>
+          <a *ngIf="nguoiDung?.role === 'ADMIN'" routerLink="/admin"
+             routerLinkActive="bg-red-800"
+             class="nav-link bg-yellow-500 text-gray-900 hover:bg-yellow-400">
+            ⚙️ Quản trị
+          </a>
+        </div>
+
+        <!-- User Actions -->
+        <div class="flex items-center gap-2">
+          <ng-container *ngIf="!nguoiDung; else daCoTaiKhoan">
+            <a routerLink="/dang-nhap"
+               class="px-4 py-2 text-sm font-semibold text-white border border-red-400 rounded-lg hover:bg-red-600 transition-colors">
+              Đăng nhập
+            </a>
+          </ng-container>
+
+          <ng-template #daCoTaiKhoan>
+            <div class="relative" (click)="moMenu = !moMenu" (clickOutside)="moMenu = false">
+              <!-- Avatar button -->
+              <button class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-white hover:bg-red-600 transition-colors">
+                <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center font-bold text-sm">
+                  {{ (nguoiDung?.fullName || 'U').charAt(0).toUpperCase() }}
+                </div>
+                <span class="hidden sm:block text-sm font-medium max-w-[120px] truncate">
+                  {{ nguoiDung?.fullName }}
+                </span>
+                <svg class="w-4 h-4 transition-transform" [class.rotate-180]="moMenu"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+
+              <!-- Dropdown menu -->
+              <div *ngIf="moMenu"
+                   class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                <div class="px-4 py-2 border-b border-gray-100">
+                  <p class="font-semibold text-gray-800 text-sm truncate">{{ nguoiDung?.fullName }}</p>
+                  <p class="text-gray-500 text-xs truncate">{{ nguoiDung?.email }}</p>
+                  <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-bold"
+                        [class]="nguoiDung?.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'">
+                    {{ nguoiDung?.role === 'ADMIN' ? '👑 Quản trị viên' : '👤 Khách hàng' }}
+                  </span>
+                </div>
+                <a routerLink="/don-hang" (click)="moMenu=false"
+                   class="dropdown-item">📦 Đơn hàng của tôi</a>
+                <a *ngIf="nguoiDung?.role === 'ADMIN'" routerLink="/admin"
+                   (click)="moMenu=false" class="dropdown-item">⚙️ Trang quản trị</a>
+                <hr class="my-1 border-gray-100">
+                <button (click)="dangXuat(); moMenu=false"
+                        class="dropdown-item text-red-600 w-full text-left">
+                  🚪 Đăng xuất
+                </button>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN CONTENT ────────────────────────────────────────── -->
+  <main class="flex-1">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────── -->
+  <footer class="bg-gray-900 text-gray-400 py-10 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div>
+        <h3 class="text-white font-bold text-lg mb-3">🛍️ COOLSTORE</h3>
+        <p class="text-sm">Nền tảng mua sắm trực tuyến uy tín. Hàng chính hãng, giao hàng nhanh.</p>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold mb-3">Liên kết</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a routerLink="/" class="hover:text-white transition-colors">Trang chủ</a></li>
+          <li><a routerLink="/gio-hang" class="hover:text-white transition-colors">Giỏ hàng</a></li>
+          <li><a routerLink="/don-hang" class="hover:text-white transition-colors">Đơn hàng</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-white font-semibold mb-3">Thanh toán</h3>
+        <div class="flex gap-2 flex-wrap">
+          <span class="bg-gray-800 rounded px-2 py-1 text-xs">VNPay</span>
+          <span class="bg-gray-800 rounded px-2 py-1 text-xs">Tiền mặt</span>
+        </div>
+        <p class="text-xs mt-3">© 2024 CoolStore. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</div>
