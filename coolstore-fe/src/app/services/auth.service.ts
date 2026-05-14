@@ -24,6 +24,9 @@ export class AuthService {
   }
 
   dangNhap(username: string, password: string): Observable<KetQua<DangNhapResponse>> {
+
+    console.log("DỮ LIỆU THỰC TẾ GỬI LÊN BACKEND:", { username: username, password: password });
+
     return this.http.post<KetQua<DangNhapResponse>>(`${this.apiUrl}/auth/dang-nhap`,
       { username, password })
       .pipe(
