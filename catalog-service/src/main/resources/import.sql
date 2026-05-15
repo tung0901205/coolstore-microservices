@@ -1,31 +1,149 @@
-insert into catalog (itemId, title, category, description, price, image) values ('329299', 'Quarkus T-shirt', 'Mens Clothing','Mens Clothing', 10.00, '329299.jpg');
-insert into catalog (itemId, title, category, description, price, image) values ('329199', 'Pronounced Kubernetes', 'Mens Clothing','Mens Clothing', 9.00, '329199.jpg');
-insert into catalog (itemId, title, category, description, price, image) values ('165613', 'Knit socks', 'Accessories','Accessories',4.15, '165613.jpg');
-insert into catalog (itemId, title, category, description, price, image) values ('165614', 'Quarkus H2Go water bottle', 'Accessories','Accessories', 14.45, '165614.jpg');
-insert into catalog (itemId, title, category, description, price, image) values ('165954', 'Patagonia Refugio pack 28L', 'Accessories','Accessories', 6.00, '165954.jpg');
-insert into catalog (itemId, title, category, description, price, image) values ('444434', 'Red Hat Impact T-shirt', 'Womens Clothing','Womens Clothing', 9.00, '444434.jpg');
-insert into catalog (itemId, title, category, description, price, image) values ('444435', 'Quarkus twill cap', 'Accessories','Accessories',13.00 , '444435.jpg');
-insert into catalog (itemId, title, category, description, price, image) values ('444437', 'Nanobloc Universal Webcam Cover', 'Accessories','Accessories', 2.75, '444437.jpg');
+-- ============================================================
+-- CATALOG SERVICE - import.sql
+-- 28 sản phẩm khớp với ảnh thực tế trong coolstore-fe/src/assets/
+-- ============================================================
 
--- following via https://fakestoreapi.com/products/
+-- ======= Thời trang Nam (8 sản phẩm) =======
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('329299', 'Áo Thun taskkill /F /IM java.exeQuarkus', 'Thoi trang nam',
+ 'Áo thun nam chất liệu cotton 100%, in logo Quarkus nổi bật. Thoáng mát, thấm hút mồ hôi tốt, phù hợp mặc hằng ngày.',
+ 10.00, '329299.jpg');
 
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('1', 'Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops', 'men clothing', 'Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday', '109.95', '81fPKd-2AYL._AC_SL1500_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('2', 'Mens Casual Premium Slim Fit T-Shirts ', 'men clothing', 'Slim-fitting style, contrast raglan long sleeve, three-button henley placket, light weight & soft fabric for breathable and comfortable wearing. And Solid stitched shirts with round neck made for durability and a great fit for casual fashion wear and diehard baseball fans. The Henley style round neckline includes a three-button placket.', '22.3', '71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('3', 'Mens Cotton Jacket', 'men clothing', 'great outerwear jackets for Spring/Autumn/Winter, suitable for many occasions, such as working, hiking, camping, mountain/rock climbing, cycling, traveling or other outdoors. Good gift choice for you or your family member. A warm hearted love to Father, husband or son in this thanksgiving or Christmas Day.', '55.99', '71li-ujtlUL._AC_UX679_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('4', 'Mens Casual Slim Fit', 'men clothing', 'The color could be slightly different between on the screen and in practice. / Please note that body builds vary by person, therefore, detailed size information should be reviewed below on the product description.', '15.99', '71YXzeOuslL._AC_UY879_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('5', 'John Hardy Women Legends Naga Gold & Silver Dragon Station Chain Bracelet', 'jewelery', 'From our Legends Collection, the Naga was inspired by the mythical water dragon that protects the ocean pearl. Wear facing inward to be bestowed with love and abundance, or outward for protection.', '695', '71pWzhdJNwL._AC_UL640_QL65_ML3_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('6', 'Solid Gold Petite Micropave ', 'jewelery', 'Satisfaction Guaranteed. Return or exchange any order within 30 days.Designed and sold by Hafeez Center in the United States. Satisfaction Guaranteed. Return or exchange any order within 30 days.', '168', '61sbMiUnoGL._AC_UL640_QL65_ML3_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('7', 'White Gold Plated Princess', 'jewelery', 'Classic Created Wedding Engagement Solitaire Diamond Promise Ring for Her. Gifts to spoil your love more for Engagement, Wedding, Anniversary, Valentine Day...', '9.99', '71YAIFU48IL._AC_UL640_QL65_ML3_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('8', 'Pierced Owl Rose Gold Plated Stainless Steel Double', 'jewelery', 'Rose Gold Plated Double Flared Tunnel Plug Earrings. Made of 316L Stainless Steel', '10.99', '51UDEzMJVpL._AC_UL640_QL65_ML3_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('9', 'WD 2TB Elements Portable External Hard Drive - USB 3.0 ', 'electronics', 'USB 3.0 and USB 2.0 Compatibility Fast data transfers Improve PC Performance High Capacity; Compatibility Formatted NTFS for Windows 10, Windows 8.1, Windows 7; Reformatting may be required for other operating systems; Compatibility may vary depending on user’s hardware configuration and operating system', '64', '61IBBVJvSDL._AC_SY879_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('10', 'SanDisk SSD PLUS 1TB Internal SSD - SATA III 6 Gb/s', 'electronics', 'Easy upgrade for faster boot up, shutdown, application load and response (As compared to 5400 RPM SATA 2.5” hard drive; Based on published specifications and internal benchmarking tests using PCMark vantage scores) Boosts burst write performance, making it ideal for typical PC workloads The perfect balance of performance and reliability Read/write speeds of up to 535MB/s/450MB/s (Based on internal testing; Performance may vary depending upon drive capacity, host device, OS and application.)', '109', '61U7T1koQqL._AC_SX679_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('11', 'Silicon Power 256GB SSD 3D NAND A55 SLC Cache Performance Boost SATA III 2.5', 'electronics', '3D NAND flash are applied to deliver high transfer speeds Remarkable transfer speeds that enable faster bootup and improved overall system performance. The advanced SLC Cache Technology allows performance boost and longer lifespan 7mm slim design suitable for Ultrabooks and Ultra-slim notebooks. Supports TRIM command, Garbage Collection technology, RAID, and ECC (Error Checking & Correction) to provide the optimized performance and enhanced reliability.', '109', '71kWymZ+c+L._AC_SX679_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('12', 'WD 4TB Gaming Drive Works with Playstation 4 Portable External Hard Drive', 'electronics', 'Expand your PS4 gaming experience, Play anywhere Fast and easy, setup Sleek design with high capacity, 3-year manufacturer limited warranty', '114', '61mtL65D4cL._AC_SX679_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('13', 'Acer SB220Q bi 21.5 inches Full HD (1920 x 1080) IPS Ultra-Thin', 'electronics', '21. 5 inches Full HD (1920 x 1080) widescreen IPS display And Radeon free Sync technology. No compatibility for VESA Mount Refresh Rate: 75Hz - Using HDMI port Zero-frame design | ultra-thin | 4ms response time | IPS panel Aspect ratio - 16: 9. Color Supported - 16. 7 million colors. Brightness - 250 nit Tilt angle -5 degree to 15 degree. Horizontal viewing angle-178 degree. Vertical viewing angle-178 degree 75 hertz', '599', '81QpkIctqPL._AC_SX679_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('14', 'Samsung 49-Inch CHG90 144Hz Curved Gaming Monitor (LC49HG90DMNXZA) – Super Ultrawide Screen QLED ', 'electronics', '49 INCH SUPER ULTRAWIDE 32:9 CURVED GAMING MONITOR with dual 27 inch screen side by side QUANTUM DOT (QLED) TECHNOLOGY, HDR support and factory calibration provides stunningly realistic and accurate color and contrast 144HZ HIGH REFRESH RATE and 1ms ultra fast response time work to eliminate motion blur, ghosting, and reduce input lag', '999.99', '81Zt42ioCgL._AC_SX679_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('15', 'BIYLACLESEN Women 3-in-1 Snowboard Jacket Winter Coats', 'women clothing', 'Note:The Jackets is US standard size, Please choose size as your usual wear Material: 100% Polyester; Detachable Liner Fabric: Warm Fleece. Detachable Functional Liner: Skin Friendly, Lightweigt and Warm.Stand Collar Liner jacket, keep you warm in cold weather. Zippered Pockets: 2 Zippered Hand Pockets, 2 Zippered Pockets on Chest (enough to keep cards or keys)and 1 Hidden Pocket Inside.Zippered Hand Pockets and Hidden Pocket keep your things secure. Humanized Design: Adjustable and Detachable Hood and Adjustable cuff to prevent the wind and water,for a comfortable fit. 3 in 1 Detachable Design provide more convenience, you can separate the coat and inner as needed, or wear it together. It is suitable for different season and help you adapt to different climates', '56.99', '51Y5NI-I5jL._AC_UX679_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('16', 'Lock and Love Women Removable Hooded Faux Leather Moto Biker Jacket', 'women clothing', '100% POLYURETHANE(shell) 100% POLYESTER(lining) 75% POLYESTER 25% COTTON (SWEATER), Faux leather material for style and comfort / 2 pockets of front, 2-For-One Hooded denim style faux leather jacket, Button detail on waist / Detail stitching at sides, HAND WASH ONLY / DO NOT BLEACH / LINE DRY / DO NOT IRON', '29.95', '81XH0e8fefL._AC_UY879_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('17', 'Rain Jacket Women Windbreaker Striped Climbing Raincoats', 'women clothing', 'Lightweight perfet for trip or casual wear---Long sleeve with hooded, adjustable drawstring waist design. Button and zipper front closure raincoat, fully stripes Lined and The Raincoat has 2 side pockets are a good size to hold all kinds of things, it covers the hips, and the hood is generous but doesnt overdo it.Attached Cotton Lined Hood with Adjustable Drawstrings give it a real styled look.', '39.99', '71HblAHs5xL._AC_UY879_-2.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('18', 'MBJ Women Solid Short Sleeve Boat Neck V ', 'women clothing', '95% RAYON 5% SPANDEX, Made in USA or Imported, Do Not Bleach, Lightweight fabric with great stretch for comfort, Ribbed on sleeves and neckline / Double stitching on bottom hem', '9.85', '71z3kpMAYsL._AC_UY879_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('19', 'Opna Women Short Sleeve Moisture', 'women clothing', '100% Polyester, Machine wash, 100% cationic polyester interlock, Machine Wash & Pre Shrunk for a Great Fit, Lightweight, roomy and highly breathable with moisture wicking fabric which helps to keep moisture away, Soft Lightweight Fabric with comfortable V-neck collar and a slimmer fit, delivers a sleek, more feminine silhouette and Added Comfort', '7.95', '51eg55uWmdL._AC_UX679_.jpg');
-INSERT INTO catalog (itemId, title, category, description, price, image) VALUES ('20', 'DANVOUY Womens T Shirt Casual Cotton Short', 'women clothing', '95%Cotton,5%Spandex, Features: Casual, Short Sleeve, Letter Print,V-Neck,Fashion Tees, The fabric is soft and has some stretch., Occasion: Casual/Office/Beach/School/Home/Street. Season: Spring,Summer,Autumn,Winter.', '12.99', '61pHAEJ4NML._AC_UX679_.jpg');
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('329199', 'Áo Thun Kubernetes', 'Thoi trang nam',
+ 'Áo thun nam với thiết kế in chữ "Pronounced Kubernetes". Chất vải mềm mịn, co giãn 4 chiều, cực kỳ thoải mái.',
+ 9.00, '329199.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('1', 'Balo Laptop Fjallraven 15 inch', 'Thoi trang nam',
+ 'Balo cao cấp Fjallraven - Foldsack No.1, vừa laptop 15 inch. Chất liệu bền, thiết kế tinh tế, ngăn đệm chống sốc cho laptop. Hoàn hảo cho đi làm và du lịch.',
+ 109.95, '81fPKd-2AYL._AC_SL1500_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('2', 'Áo Thun Nam Slim Fit Premium', 'Thoi trang nam',
+ 'Áo thun nam dáng slim fit cao cấp, cổ tròn, tay dài contrast. Chất vải nhẹ nhàng, thoáng mát, phù hợp đi làm và đi chơi.',
+ 22.30, '71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('3', 'Áo Khoác Nam Cotton Outdoor', 'Thoi trang nam',
+ 'Áo khoác nam chất cotton cao cấp, phù hợp mùa xuân/thu/đông. Thiết kế nhiều túi tiện lợi, thích hợp leo núi, cắm trại, du lịch.',
+ 55.99, '71li-ujtlUL._AC_UX679_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('4', 'Quần Jean Nam Slim Casual', 'Thoi trang nam',
+ 'Quần jean nam dáng slim, chất liệu denim co giãn 4 chiều. Thiết kế tối giản, dễ phối đồ, phù hợp nhiều dịp khác nhau.',
+ 15.99, '71YXzeOuslL._AC_UY879_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('444434', 'Áo Thun Nữ Red Hat', 'Thoi trang nu',
+ 'Áo thun nữ Red Hat Impact, chất cotton mềm mịn, form dáng nữ tính. In logo Red Hat nổi bật, màu sắc trẻ trung.',
+ 9.00, '444434.jpg');
+
+-- ======= Thời trang Nữ (7 sản phẩm) =======
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('15', 'Áo Khoác Trượt Tuyết 3-in-1 Nữ', 'Thoi trang nu',
+ 'Áo khoác nữ 3-in-1 chống tuyết, có thể tháo rời lớp lót. Chất liệu 100% Polyester, cổ đứng, có nhiều túi khóa kéo tiện lợi.',
+ 56.99, '51Y5NI-I5jL._AC_UX679_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('16', 'Áo Khoác Da Moto Nữ có Mũ', 'Thoi trang nu',
+ 'Áo khoác da tổng hợp phong cách moto, có mũ tháo rời. Chất liệu PU cao cấp, 2 túi trước, đường may chắc chắn.',
+ 29.95, '81XH0e8fefL._AC_UY879_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('17', 'Áo Khoác Mưa Nữ Có Sọc', 'Thoi trang nu',
+ 'Áo khoác mưa nữ nhẹ nhàng, thiết kế có sọc nổi bật. Có mũ điều chỉnh được, 2 túi bên, vừa thời trang vừa thực dụng.',
+ 39.99, '71HblAHs5xL._AC_UY879_-2.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('18', 'Áo Thun Nữ Cổ V Basic', 'Thoi trang nu',
+ 'Áo thun nữ cổ V trơn, chất 95% Rayon 5% Spandex. Co giãn tốt, ôm dáng nhẹ, phù hợp mặc trong và ngoài.',
+ 9.85, '71z3kpMAYsL._AC_UY879_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('19', 'Áo Thun Nữ Thoáng Khí Thể Thao', 'Thoi trang nu',
+ 'Áo thun nữ 100% Polyester, công nghệ thoát ẩm cao cấp. Nhẹ nhàng, thoáng khí, phù hợp tập thể thao và đi chơi.',
+ 7.95, '51eg55uWmdL._AC_UX679_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('20', 'Áo Thun Nữ Cotton In Chữ', 'Thoi trang nu',
+ 'Áo thun nữ 95% Cotton 5% Spandex, in chữ thời trang. Chất vải mềm có độ co giãn, cổ V thanh lịch, phù hợp đi làm và đi chơi.',
+ 12.99, '61pHAEJ4NML._AC_UX679_.jpg');
+
+-- ======= Trang sức (4 sản phẩm) =======
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('5', 'Vòng Tay Rồng Vàng Bạc John Hardy', 'Trang suc',
+ 'Vòng tay cao cấp từ bộ sưu tập Legends của John Hardy, thiết kế hình rồng Naga. Chất liệu vàng và bạc kết hợp tinh tế, biểu tượng của tình yêu và sự bảo hộ.',
+ 695.00, '71pWzhdJNwL._AC_UL640_QL65_ML3_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('6', 'Nhẫn Kim Cương Micropave Vàng Đặc', 'Trang suc',
+ 'Nhẫn vàng đặc micropave đính kim cương nhỏ. Đổi trả trong 30 ngày. Thiết kế và bán bởi Hafeez Center, xuất xứ Mỹ.',
+ 168.00, '61sbMiUnoGL._AC_UL640_QL65_ML3_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('7', 'Nhẫn Hứa Hôn Công Chúa Vàng Trắng', 'Trang suc',
+ 'Nhẫn đính hôn công chúa mạ vàng trắng, đính hột xoàn nhân tạo. Quà tặng ý nghĩa cho ngày Valentine, kỷ niệm, đám cưới.',
+ 9.99, '71YAIFU48IL._AC_UL640_QL65_ML3_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('8', 'Bông Tai Đôi Hoa Hồng Vàng Inox', 'Trang suc',
+ 'Bông tai đôi hình ống làm từ thép không gỉ 316L mạ vàng hồng. Thiết kế hoa văn tinh tế, chất lượng cao, không gỉ sét.',
+ 10.99, '51UDEzMJVpL._AC_UL640_QL65_ML3_.jpg');
+
+-- ======= Điện tử (6 sản phẩm) =======
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('9', 'Ổ Cứng Di Động WD 2TB USB 3.0', 'Dien tu',
+ 'Ổ cứng di động WD Elements 2TB, cổng USB 3.0 tốc độ cao. Tương thích Windows, dễ cắm dùng ngay, thiết kế gọn nhẹ.',
+ 64.00, '61IBBVJvSDL._AC_SY879_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('10', 'SSD Nội Bộ SanDisk 1TB SATA III', 'Dien tu',
+ 'SSD nội bộ SanDisk PLUS 1TB, tốc độ đọc/ghi 535/450 MB/s. Nâng cấp tuyệt vời để máy tính khởi động nhanh hơn gấp nhiều lần.',
+ 109.00, '61U7T1koQqL._AC_SX679_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('11', 'SSD Silicon Power 256GB 3D NAND', 'Dien tu',
+ 'SSD Silicon Power 256GB, công nghệ 3D NAND flash. Hỗ trợ TRIM, Garbage Collection, RAID, ECC. Form factor 2.5 inch siêu mỏng 7mm.',
+ 109.00, '71kWymZ+c+L._AC_SX679_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('12', 'Ổ Cứng Gaming WD 4TB PS4', 'Dien tu',
+ 'Ổ cứng ngoài WD 4TB chuyên dành cho PS4. Cắm và chơi ngay, mở rộng kho game không giới hạn. Bảo hành nhà sản xuất 3 năm.',
+ 114.00, '61mtL65D4cL._AC_SX679_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('13', 'Màn Hình Acer SB220Q 21.5 inch FHD IPS', 'Dien tu',
+ 'Màn hình Acer 21.5 inch Full HD 1920x1080, tấm nền IPS góc nhìn rộng 178°. Tần số 75Hz, thời gian phản hồi 4ms, viền siêu mỏng.',
+ 599.00, '81QpkIctqPL._AC_SX679_.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('14', 'Samsung 49 inch CHG90 Curved Gaming 144Hz', 'Dien tu',
+ 'Màn hình gaming Samsung 49 inch cong Super Ultrawide 32:9, QLED, HDR. Tần số 144Hz, 1ms, loại bỏ hoàn toàn blur và ghosting.',
+ 999.99, '81Zt42ioCgL._AC_SX679_.jpg');
+
+-- ======= Phụ kiện (5 sản phẩm) =======
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('165613', 'Tất Len Cao Cấp', 'Phu kien',
+ 'Tất len đan tay cao cấp, giữ ấm tốt. Chất liệu len mềm mịn, không gây ngứa, phù hợp cho mùa đông.',
+ 4.15, '165613.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('165614', 'Bình Nước Quarkus H2Go', 'Phu kien',
+ 'Bình nước Quarkus H2Go dung tích 600ml, chất liệu inox không gỉ 2 lớp cách nhiệt. Giữ lạnh 24h, giữ nóng 12h.',
+ 14.45, '165614.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('165954', 'Balo Du Lịch Patagonia 28L', 'Phu kien',
+ 'Balo Patagonia Refugio 28L, thiết kế gọn gàng chắc chắn. Ngăn laptop riêng, chống thấm nước, dây đeo êm ái.',
+ 6.00, '165954.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('444435', 'Mũ Lưỡi Trai Quarkus Twill', 'Phu kien',
+ 'Mũ lưỡi trai Quarkus vải twill cao cấp, có khóa điều chỉnh. In logo Quarkus tinh tế, phong cách trẻ trung.',
+ 13.00, '444435.jpg');
+
+INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
+('444437', 'Miếng Dán Che Webcam Nanobloc', 'Phu kien',
+ 'Miếng che webcam laptop siêu mỏng Nanobloc, bảo vệ riêng tư. Keo dán đặc biệt không để lại vết, dùng được cho mọi loại laptop.',
+ 2.75, '444437.jpg');

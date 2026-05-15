@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoolStore — Database Viewer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #0a0b0f;
+      --surface:   #111318;
+      --surface2:  #191c24;
+      --border:    rgba(255,255,255,0.07);
+      --accent:    #3b82f6;
+      --accent2:   #10b981;
+      --warn:      #f59e0b;
+      --danger:    #ef4444;
+      --text:      #e2e8f0;
+      --muted:     #64748b;
+      --mono:      'JetBrains Mono', monospace;
+      --sans:      'Syne', sans-serif;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; }
+
+    /* Noise grain overlay */
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:9999; opacity:.025;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom:1px solid var(--border);
+      padding:20px 32px;
+      display:flex; align-items:center; justify-content:space-between;
+      background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(16,185,129,.04));
+    }
+    .logo { display:flex; align-items:center; gap:12px; }
+    .logo-icon {
+      width:36px; height:36px; background:var(--accent); border-radius:8px;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:800; font-size:14px; color:white; letter-spacing:-0.5px;
+    }
+    .logo-text { font-size:18px; font-weight:800; letter-spacing:-0.5px; }
+    .logo-sub  { font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; font-family:var(--mono); }
+    .status-dot { width:8px; height:8px; border-radius:50%; background:#ef4444; display:inline-block; margin-right:6px; animation:pulse 2s infinite; }
+    .status-dot.ok { background:var(--accent2); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* ── Layout ── */
+    .container { display:grid; grid-template-columns:220px 1fr; min-height:calc(100vh - 73px); }
+
+    /* ── Sidebar ── */
+    aside {
+      border-right:1px solid var(--border); padding:24px 0;
+      background:var(--surface);
+    }
+    .sidebar-section { padding:8px 20px 4px; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); font-family:var(--mono); }
+    .nav-item {
+      display:flex; align-items:center; gap:10px; padding:10px 20px;
+      font-size:13px; cursor:pointer; transition:.15s; border-left:2px solid transparent;
+      color:var(--muted); font-weight:600; letter-spacing:.3px;
+    }
+    .nav-item:hover { color:var(--text); background:var(--surface2); }
+    .nav-item.active { color:var(--accent); border-left-color:var(--accent); background:rgba(59,130,246,.08); }
+    .nav-item .icon { font-size:16px; width:20px; text-align:center; }
+    .badge { margin-left:auto; background:var(--surface2); border:1px solid var(--border); color:var(--muted); font-family:var(--mono); font-size:10px; padding:1px 7px; border-radius:20px; }
+    .badge.blue { background:rgba(59,130,246,.15); color:var(--accent); border-color:rgba(59,130,246,.3); }
+
+    /* ── Main ── */
+    main { padding:28px 32px; overflow:auto; }
+
+    .page-title { font-size:22px; font-weight:800; letter-spacing:-.5px; margin-bottom:4px; }
+    .page-sub   { font-size:13px; color:var(--muted); margin-bottom:24px; font-family:var(--mono); }
+
+    /* ── Toolbar ── */
+    .toolbar { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; align-items:center; }
+    .search-box {
+      flex:1; min-width:200px; max-width:320px;
+      background:var(--surface); border:1px solid var(--border); border-radius:8px;
+      display:flex; align-items:center; gap:8px; padding:0 12px;
+    }
+    .search-box input {
+      background:none; border:none; outline:none; color:var(--text);
+      font-family:var(--mono); font-size:13px; padding:9px 0; width:100%;
+    }
+    .search-box span { color:var(--muted); font-size:14px; }
+    .btn {
+      display:inline-flex; align-items:center; gap:6px; padding:8px 16px;
+      border-radius:8px; border:1px solid var(--border); background:var(--surface);
+      color:var(--text); font-family:var(--sans); font-size:13px; font-weight:600;
+      cursor:pointer; transition:.15s; letter-spacing:.2px;
+    }
+    .btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08); }
+    .btn.primary { background:var(--accent); border-color:var(--accent); color:white; }
+    .btn.primary:hover { background:#2563eb; }
+
+    /* ── Stats row ── */
+    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:24px; }
+    .stat {
+      background:var(--surface); border:1px solid var(--border); border-radius:10px;
+      padding:16px; display:flex; flex-direction:column; gap:4px;
+    }
+    .stat-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; font-family:var(--mono); }
+    .stat-value { font-size:26px; font-weight:800; letter-spacing:-1px; }
+    .stat-value.blue  { color:var(--accent); }
+    .stat-value.green { color:var(--accent2); }
+    .stat-value.warn  { color:var(--warn); }
+
+    /* ── Table ── */
+    .table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    thead tr { background:var(--surface2); border-bottom:1px solid var(--border); }
+    th { padding:12px 16px; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-family:var(--mono); font-weight:600; white-space:nowrap; }
+    td { padding:11px 16px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:middle; }
+    tbody tr:last-child td { border-bottom:none; }
+    tbody tr:hover td { background:rgba(255,255,255,.02); }
+
+    .pill {
+      display:inline-flex; align-items:center; gap:4px; padding:3px 10px;
+      border-radius:20px; font-size:11px; font-weight:700; letter-spacing:.5px; font-family:var(--mono);
+    }
+    .pill.admin  { background:rgba(139,92,246,.15); color:#a78bfa; border:1px solid rgba(139,92,246,.3); }
+    .pill.user   { background:rgba(59,130,246,.12); color:#93c5fd; border:1px solid rgba(59,130,246,.25); }
+    .pill.active { background:rgba(16,185,129,.12); color:#6ee7b7; border:1px solid rgba(16,185,129,.25); }
+    .pill.inactive{ background:rgba(239,68,68,.12); color:#fca5a5; border:1px solid rgba(239,68,68,.25); }
+    .pill.low    { background:rgba(245,158,11,.12); color:#fcd34d; border:1px solid rgba(245,158,11,.25); }
+    .pill.ok     { background:rgba(16,185,129,.12); color:#6ee7b7; border:1px solid rgba(16,185,129,.25); }
+    .pill.out    { background:rgba(239,68,68,.12); color:#fca5a5; border:1px solid rgba(239,68,68,.25); }
+
+    .mono { font-family:var(--mono); font-size:12px; color:var(--muted); }
+    .product-img { width:40px; height:40px; object-fit:cover; border-radius:6px; border:1px solid var(--border); }
+    .truncate { max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    /* ── Loading / Error ── */
+    .center-msg { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:200px; gap:12px; color:var(--muted); }
+    .spinner { width:32px; height:32px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .err-box { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.2); border-radius:10px; padding:16px 20px; color:#fca5a5; font-family:var(--mono); font-size:13px; margin-bottom:20px; }
+
+    /* ── Config modal ── */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(8px); z-index:100; display:flex; align-items:center; justify-content:center; }
+    .modal { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:32px; width:480px; box-shadow:0 25px 60px rgba(0,0,0,.6); }
+    .modal h2 { font-size:18px; font-weight:800; margin-bottom:20px; }
+    .field-group { margin-bottom:16px; }
+    .field-label { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-family:var(--mono); margin-bottom:6px; display:block; }
+    .field-input {
+      width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px;
+      padding:10px 14px; color:var(--text); font-family:var(--mono); font-size:13px; outline:none;
+      transition:.15s;
+    }
+    .field-input:focus { border-color:var(--accent); }
+    .modal-actions { display:flex; gap:10px; margin-top:24px; justify-content:flex-end; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width:6px; height:6px; }
+    ::-webkit-scrollbar-track { background:var(--bg); }
+    ::-webkit-scrollbar-thumb { background:var(--surface2); border-radius:3px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">CS</div>
+    <div>
+      <div class="logo-text">CoolStore</div>
+      <div class="logo-sub">Database Viewer</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <span style="font-size:13px;color:var(--muted)">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Chưa kết nối</span>
+    </span>
+    <button class="btn" onclick="showConfig()">⚙ Cấu hình API</button>
+  </div>
+</header>
+
+<div class="container">
+  <aside>
+    <div class="sidebar-section">Bảng dữ liệu</div>
+    <div class="nav-item active" onclick="showTab('users')" id="nav-users">
+      <span class="icon">👥</span> Người dùng
+      <span class="badge blue" id="badge-users">—</span>
+    </div>
+    <div class="nav-item" onclick="showTab('products')" id="nav-products">
+      <span class="icon">📦</span> Sản phẩm
+      <span class="badge blue" id="badge-products">—</span>
+    </div>
+    <div class="nav-item" onclick="showTab('inventory')" id="nav-inventory">
+      <span class="icon">🏭</span> Tồn kho
+      <span class="badge blue" id="badge-inventory">—</span>
+    </div>
+    <div class="nav-item" onclick="showTab('orders')" id="nav-orders">
+      <span class="icon">🛵</span> Đơn hàng
+      <span class="badge blue" id="badge-orders">—</span>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:20px">Trạng thái</div>
+    <div style="padding:12px 20px;">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:var(--mono)">Auth Service</div>
+      <div style="font-size:12px" id="svc-auth">—</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;margin-top:10px;font-family:var(--mono)">Catalog Service</div>
+      <div style="font-size:12px" id="svc-catalog">—</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;margin-top:10px;font-family:var(--mono)">Inventory Service</div>
+      <div style="font-size:12px" id="svc-inventory">—</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px;margin-top:10px;font-family:var(--mono)">Order Service</div>
+      <div style="font-size:12px" id="svc-orders">—</div>
+    </div>
+
+    <div style="padding:12px 20px;margin-top:8px">
+      <button class="btn" style="width:100%;justify-content:center" onclick="loadAll()">🔄 Làm mới tất cả</button>
+    </div>
+  </aside>
+
+  <main id="main-content">
+    <div class="center-msg" style="min-height:60vh">
+      <div style="font-size:48px">🗄️</div>
+      <div style="font-size:16px;font-weight:700">CoolStore Database Viewer</div>
+      <div style="font-size:13px;color:var(--muted);text-align:center;max-width:360px">
+        Nhấn <strong style="color:var(--accent)">⚙ Cấu hình API</strong> để nhập URL các service,
+        hoặc nhấn <strong style="color:var(--accent2)">Tải dữ liệu</strong> nếu đang dùng cổng mặc định.
+      </div>
+      <button class="btn primary" onclick="loadAll()">🚀 Tải dữ liệu (cổng mặc định)</button>
+    </div>
+  </main>
+</div>
+
+<!-- Config Modal -->
+<div class="modal-backdrop" id="config-modal" style="display:none">
+  <div class="modal">
+    <h2>⚙ Cấu hình URL các Service</h2>
+    <div class="field-group">
+      <label class="field-label">Auth Service</label>
+      <input class="field-input" id="cfg-auth" value="http://localhost:8089/api">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Catalog Service</label>
+      <input class="field-input" id="cfg-catalog" value="http://localhost:8082/api">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Inventory Service</label>
+      <input class="field-input" id="cfg-inventory" value="http://localhost:8081/api">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Order Service</label>
+      <input class="field-input" id="cfg-order" value="http://localhost:8086/api">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Admin JWT Token (để xem users)</label>
+      <input class="field-input" id="cfg-token" placeholder="Paste JWT token sau khi đăng nhập admin...">
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;font-family:var(--mono)">Lấy token từ DevTools → Application → localStorage → coolstore_token</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeConfig()">Hủy</button>
+      <button class="btn primary" onclick="saveConfig()">💾 Lưu & Tải dữ liệu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Config ──────────────────────────────────────────────────
+  let CFG = {
+    auth:      'http://localhost:8089/api',
+    catalog:   'http://localhost:8082/api',
+    inventory: 'http://localhost:8081/api',
+    order:     'http://localhost:8086/api',
+    token:     ''
+  };
+
+  let DATA = { users: [], products: [], inventory: [], orders: [] };
+  let currentTab = 'users';
+  let searchVal = '';
+
+  function showConfig() { document.getElementById('config-modal').style.display = 'flex'; }
+  function closeConfig() { document.getElementById('config-modal').style.display = 'none'; }
+  function saveConfig() {
+    CFG.auth      = document.getElementById('cfg-auth').value;
+    CFG.catalog   = document.getElementById('cfg-catalog').value;
+    CFG.inventory = document.getElementById('cfg-inventory').value;
+    CFG.order     = document.getElementById('cfg-order').value;
+    CFG.token     = document.getElementById('cfg-token').value;
+    closeConfig();
+    loadAll();
+  }
+
+  // ── API helpers ──────────────────────────────────────────────
+  async function apiFetch(url, token) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    const r = await fetch(url, { headers });
+    if (!r.ok) throw new Error(`HTTP ${r.status} — ${url}`);
+    return r.json();
+  }
+
+  function setSvcStatus(id, ok, msg) {
+    const el = document.getElementById(id);
+    el.innerHTML = `<span style="color:${ok?'#6ee7b7':'#fca5a5'}">${ok?'●':'○'} ${msg}</span>`;
+  }
+
+  // ── Load all data ─────────────────────────────────────────────
+  async function loadAll() {
+    setLoading('Đang tải dữ liệu từ tất cả services...');
+    let anyOk = false;
+
+    // Auth — users
+    try {
+      const r = await apiFetch(CFG.auth + '/auth/nguoi-dung', CFG.token);
+      DATA.users = r.duLieu || [];
+      document.getElementById('badge-users').textContent = DATA.users.length;
+      setSvcStatus('svc-auth', true, `${DATA.users.length} users`);
+      anyOk = true;
+    } catch(e) {
+      DATA.users = [];
+      document.getElementById('badge-users').textContent = '!';
+      setSvcStatus('svc-auth', false, 'Lỗi kết nối');
+    }
+
+    // Catalog — products
+    try {
+      const r = await apiFetch(CFG.catalog + '/products');
+      DATA.products = Array.isArray(r) ? r : (r.duLieu || r.data || []);
+      document.getElementById('badge-products').textContent = DATA.products.length;
+      setSvcStatus('svc-catalog', true, `${DATA.products.length} sản phẩm`);
+      anyOk = true;
+    } catch(e) {
+      DATA.products = [];
+      document.getElementById('badge-products').textContent = '!';
+      setSvcStatus('svc-catalog', false, 'Lỗi kết nối');
+    }
+
+    // Inventory
+    try {
+      const r = await apiFetch(CFG.inventory + '/inventory');
+      DATA.inventory = Array.isArray(r) ? r : (r.duLieu || []);
+      document.getElementById('badge-inventory').textContent = DATA.inventory.length;
+      setSvcStatus('svc-inventory', true, `${DATA.inventory.length} bản ghi`);
+      anyOk = true;
+    } catch(e) {
+      DATA.inventory = [];
+      document.getElementById('badge-inventory').textContent = '!';
+      setSvcStatus('svc-inventory', false, 'Lỗi kết nối');
+    }
+
+    // Orders
+    try {
+      const r = await apiFetch(CFG.order + '/orders', CFG.token);
+      DATA.orders = r.duLieu || [];
+      document.getElementById('badge-orders').textContent = DATA.orders.length;
+      setSvcStatus('svc-orders', true, `${DATA.orders.length} đơn hàng`);
+      anyOk = true;
+    } catch(e) {
+      DATA.orders = [];
+      document.getElementById('badge-orders').textContent = '!';
+      setSvcStatus('svc-orders', false, 'Lỗi kết nối');
+    }
+
+    // Global status
+    const dot = document.getElementById('status-dot');
+    const txt = document.getElementById('status-text');
+    if (anyOk) {
+      dot.className = 'status-dot ok';
+      txt.textContent = 'Đã kết nối';
+    } else {
+      dot.className = 'status-dot';
+      txt.textContent = 'Lỗi kết nối — kiểm tra service đang chạy';
+    }
+
+    renderTab(currentTab);
+  }
+
+  function setLoading(msg = 'Đang tải...') {
+    document.getElementById('main-content').innerHTML = `
+      <div class="center-msg"><div class="spinner"></div><div>${msg}</div></div>`;
+  }
+
+  // ── Tab navigation ────────────────────────────────────────────
+  function showTab(tab) {
+    currentTab = tab;
+    searchVal  = '';
+    ['users','products','inventory','orders'].forEach(t => {
+      document.getElementById('nav-'+t).className = 'nav-item' + (t===tab?' active':'');
+    });
+    renderTab(tab);
+  }
+
+  function renderTab(tab) {
+    const main = document.getElementById('main-content');
+    if (tab === 'users')     main.innerHTML = renderUsers();
+    if (tab === 'products')  main.innerHTML = renderProducts();
+    if (tab === 'inventory') main.innerHTML = renderInventory();
+    if (tab === 'orders')    main.innerHTML = renderOrders();
+  }
+
+  // ── USERS ─────────────────────────────────────────────────────
+  function renderUsers() {
+    const d = DATA.users;
+    const admins = d.filter(u => u.role === 'ADMIN').length;
+    const active = d.filter(u => u.active).length;
+    return `
+      <div class="page-title">👥 Người dùng</div>
+      <div class="page-sub">Bảng app_user — database: coolstore</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Tổng số</div><div class="stat-value blue">${d.length}</div></div>
+        <div class="stat"><div class="stat-label">Admin</div><div class="stat-value" style="color:#a78bfa">${admins}</div></div>
+        <div class="stat"><div class="stat-label">Hoạt động</div><div class="stat-value green">${active}</div></div>
+        <div class="stat"><div class="stat-label">Khóa</div><div class="stat-value warn">${d.length-active}</div></div>
+      </div>
+      ${d.length === 0 ? errBox('Không có dữ liệu người dùng. Cần JWT token admin — xem hướng dẫn trong cấu hình.') : ''}
+      <div class="toolbar">
+        <div class="search-box"><span>🔍</span><input placeholder="Tìm theo tên, email, username..." oninput="filterTable('tbl-users',this.value)"></div>
+        <button class="btn" onclick="exportCSV('users')">📥 Export CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table id="tbl-users">
+          <thead><tr>
+            <th>ID</th><th>Username</th><th>Họ tên</th><th>Email</th><th>Quyền</th><th>Trạng thái</th><th>Ngày tạo</th>
+          </tr></thead>
+          <tbody>
+            ${d.map(u => `<tr data-search="${(u.username+u.fullName+u.email).toLowerCase()}">
+              <td class="mono">${u.id}</td>
+              <td style="font-weight:700">${esc(u.username)}</td>
+              <td>${esc(u.fullName||'—')}</td>
+              <td class="mono" style="font-size:12px">${esc(u.email)}</td>
+              <td><span class="pill ${u.role==='ADMIN'?'admin':'user'}">${u.role==='ADMIN'?'👑 ADMIN':'👤 USER'}</span></td>
+              <td><span class="pill ${u.active?'active':'inactive'}">${u.active?'● Hoạt động':'○ Khóa'}</span></td>
+              <td class="mono" style="font-size:11px">${fmtDate(u.createdAt)}</td>
+            </tr>`).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:40px">Chưa có dữ liệu</td></tr>'}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  // ── PRODUCTS ──────────────────────────────────────────────────
+  function renderProducts() {
+    const d = DATA.products;
+    const cats = [...new Set(d.map(p=>p.category).filter(Boolean))];
+    return `
+      <div class="page-title">📦 Sản phẩm</div>
+      <div class="page-sub">Bảng catalog — database: catalog</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Tổng số</div><div class="stat-value blue">${d.length}</div></div>
+        <div class="stat"><div class="stat-label">Danh mục</div><div class="stat-value green">${cats.length}</div></div>
+        <div class="stat"><div class="stat-label">Giá TB</div><div class="stat-value warn">$${d.length?Math.round(d.reduce((s,p)=>s+(+p.price||0),0)/d.length):'0'}</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="search-box"><span>🔍</span><input placeholder="Tìm theo tên, danh mục..." oninput="filterTable('tbl-products',this.value)"></div>
+        <button class="btn" onclick="exportCSV('products')">📥 Export CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table id="tbl-products">
+          <thead><tr>
+            <th>Ảnh</th><th>Item ID</th><th>Tên sản phẩm</th><th>Danh mục</th><th>Giá</th><th>Tồn kho</th>
+          </tr></thead>
+          <tbody>
+            ${d.map(p => {
+              const inv = DATA.inventory.find(i => i.itemId === p.itemId);
+              const qty = inv ? inv.quantity : (p.quantity ?? 0);
+              return `<tr data-search="${(p.title+p.category+p.itemId).toLowerCase()}">
+                <td><img class="product-img" src="http://localhost:4200/assets/${esc(p.image)}" onerror="this.style.display='none'" loading="lazy"></td>
+                <td class="mono">${esc(p.itemId)}</td>
+                <td><div class="truncate" title="${esc(p.title)}">${esc(p.title)}</div></td>
+                <td><span class="pill user" style="font-size:10px">${esc(p.category||'—')}</span></td>
+                <td style="font-weight:700;color:var(--accent2)">$${(+p.price||0).toFixed(2)}</td>
+                <td><span class="pill ${qty===0?'out':qty<=20?'low':'ok'}">${qty===0?'Hết hàng':qty<=20?'⚠ '+qty:qty}</span></td>
+              </tr>`;
+            }).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px">Chưa có dữ liệu</td></tr>'}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  // ── INVENTORY ─────────────────────────────────────────────────
+  function renderInventory() {
+    const d = DATA.inventory;
+    const out = d.filter(i=>i.quantity===0).length;
+    const low = d.filter(i=>i.quantity>0&&i.quantity<=20).length;
+    return `
+      <div class="page-title">🏭 Tồn kho</div>
+      <div class="page-sub">Bảng INVENTORY — database: inventory</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Tổng bản ghi</div><div class="stat-value blue">${d.length}</div></div>
+        <div class="stat"><div class="stat-label">Hết hàng</div><div class="stat-value" style="color:#fca5a5">${out}</div></div>
+        <div class="stat"><div class="stat-label">Sắp hết (≤20)</div><div class="stat-value warn">${low}</div></div>
+        <div class="stat"><div class="stat-label">Tổng tồn kho</div><div class="stat-value green">${d.reduce((s,i)=>s+i.quantity,0).toLocaleString()}</div></div>
+      </div>
+      <div class="toolbar">
+        <div class="search-box"><span>🔍</span><input placeholder="Tìm theo itemId, location..." oninput="filterTable('tbl-inv',this.value)"></div>
+      </div>
+      <div class="table-wrap">
+        <table id="tbl-inv">
+          <thead><tr><th>ID</th><th>Item ID</th><th>Tên sản phẩm</th><th>Kho hàng</th><th>Số lượng</th><th>Trạng thái</th></tr></thead>
+          <tbody>
+            ${d.map(i => {
+              const prod = DATA.products.find(p=>p.itemId===i.itemId);
+              return `<tr data-search="${(i.itemId+(i.location||'')).toLowerCase()}">
+                <td class="mono">${i.id}</td>
+                <td class="mono">${esc(i.itemId)}</td>
+                <td class="truncate" style="max-width:180px;font-size:12px">${prod?esc(prod.title):'—'}</td>
+                <td style="font-size:12px">${esc(i.location||'—')}</td>
+                <td style="font-weight:700;font-size:16px">${i.quantity}</td>
+                <td><span class="pill ${i.quantity===0?'out':i.quantity<=20?'low':'ok'}">${i.quantity===0?'Hết hàng':i.quantity<=20?'Sắp hết':'Còn hàng'}</span></td>
+              </tr>`;
+            }).join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px">Chưa có dữ liệu</td></tr>'}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  // ── ORDERS ────────────────────────────────────────────────────
+  function renderOrders() {
+    const d = DATA.orders;
+    const paid = d.filter(o=>o.trangThaiThanhToan==='DA_THANH_TOAN').length;
+    const total = d.reduce((s,o)=>s+(+o.tongTien||0),0);
+    return `
+      <div class="page-title">🛵 Đơn hàng</div>
+      <div class="page-sub">Bảng don_hang — database: coolstore</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Tổng đơn</div><div class="stat-value blue">${d.length}</div></div>
+        <div class="stat"><div class="stat-label">Đã thanh toán</div><div class="stat-value green">${paid}</div></div>
+        <div class="stat"><div class="stat-label">Chưa TT</div><div class="stat-value warn">${d.length-paid}</div></div>
+        <div class="stat"><div class="stat-label">Doanh thu</div><div class="stat-value" style="color:var(--accent2)">$${total.toLocaleString()}</div></div>
+      </div>
+      ${d.length === 0 ? errBox('Chưa có đơn hàng hoặc cần JWT token admin.') : ''}
+      <div class="toolbar">
+        <div class="search-box"><span>🔍</span><input placeholder="Tìm theo mã đơn, tên khách..." oninput="filterTable('tbl-orders',this.value)"></div>
+      </div>
+      <div class="table-wrap">
+        <table id="tbl-orders">
+          <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Sản phẩm</th><th>Tổng tiền</th><th>TT Thanh toán</th><th>TT Đơn hàng</th><th>Ngày tạo</th></tr></thead>
+          <tbody>
+            ${d.map(o => `<tr data-search="${((o.id||'')+(o.tenNguoiDat||'')).toLowerCase()}">
+              <td class="mono" style="font-size:11px">${esc(o.id||'—')}</td>
+              <td style="font-weight:600;font-size:13px">${esc(o.tenNguoiDat||'—')}</td>
+              <td class="mono" style="font-size:12px">${(o.cacMatHang||[]).length} sản phẩm</td>
+              <td style="font-weight:700;color:var(--accent2)">$${(+o.tongTien||0).toFixed(2)}</td>
+              <td><span class="pill ${o.trangThaiThanhToan==='DA_THANH_TOAN'?'ok':'warn'}">${o.trangThaiThanhToanText||o.trangThaiThanhToan||'—'}</span></td>
+              <td><span class="pill user" style="font-size:10px">${o.trangThaiDonHangText||o.trangThaiDonHang||'—'}</span></td>
+              <td class="mono" style="font-size:11px">${fmtDate(o.ngayTao)}</td>
+            </tr>`).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:40px">Chưa có dữ liệu</td></tr>'}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  // ── Utilities ─────────────────────────────────────────────────
+  function errBox(msg) {
+    return `<div class="err-box">⚠ ${msg}</div>`;
+  }
+
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    try { return new Date(d).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+    catch { return d; }
+  }
+
+  function filterTable(tableId, val) {
+    val = val.toLowerCase();
+    const rows = document.querySelectorAll('#'+tableId+' tbody tr');
+    rows.forEach(r => {
+      const s = r.getAttribute('data-search') || r.textContent.toLowerCase();
+      r.style.display = s.includes(val) ? '' : 'none';
+    });
+  }
+
+  function exportCSV(type) {
+    let rows, headers;
+    if (type === 'users') {
+      headers = ['ID','Username','Họ tên','Email','Quyền','Trạng thái','Ngày tạo'];
+      rows = DATA.users.map(u => [u.id,u.username,u.fullName,u.email,u.role,u.active?'Hoạt động':'Khóa',u.createdAt]);
+    } else if (type === 'products') {
+      headers = ['ItemID','Tên','Danh mục','Giá','Ảnh'];
+      rows = DATA.products.map(p => [p.itemId,p.title,p.category,p.price,p.image]);
+    }
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c||''}"`).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+    a.download = `coolstore-${type}-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+  }
+</script>
+</body>
+</html>

@@ -1,16 +1,15 @@
 -- ============================================================
--- AUTH SERVICE - import.sql (ĐÃ SỬA LỖI 6)
--- Dữ liệu mẫu cho auth-service
+-- AUTH SERVICE - import.sql (SỬA LỖI ĐĂNG NHẬP)
 --
--- Lưu ý: Với mode drop-and-create, Hibernate sẽ tự tạo bảng
--- và sequence app_user_seq trước khi chạy file này.
--- Mật khẩu: Admin@123 (BCrypt hash)
+-- SỬA CHÍNH: Dùng INSERT ... ON CONFLICT DO NOTHING
+-- → Nếu bảng đã có user (restart), không gây lỗi duplicate key
+-- → Transaction không bị rollback → bảng luôn có dữ liệu
+--
+-- Mật khẩu: Admin@123
+-- BCrypt hash ($2a$12$...): ĐÚNG, đã xác minh
 -- ============================================================
 
--- Xóa dữ liệu cũ để tránh conflict khi restart (drop-and-create đã xóa bảng rồi)
--- DELETE FROM app_user; -- không cần vì drop-and-create đã xóa
-
--- Tài khoản Admin
+-- Admin account
 INSERT INTO app_user (id, username, email, full_name, password_hash, role, active, created_at)
 VALUES (1,
         'admin',
@@ -19,9 +18,10 @@ VALUES (1,
         '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj6FrFDdOJ5e',
         'ADMIN',
         true,
-        NOW());
+        NOW())
+ON CONFLICT (username) DO NOTHING;
 
--- Tài khoản User thường
+-- User account
 INSERT INTO app_user (id, username, email, full_name, password_hash, role, active, created_at)
 VALUES (2,
         'nguyenvana',
@@ -30,8 +30,8 @@ VALUES (2,
         '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj6FrFDdOJ5e',
         'USER',
         true,
-        NOW());
+        NOW())
+ON CONFLICT (username) DO NOTHING;
 
--- Cập nhật sequence để ID tiếp theo bắt đầu từ 3
--- (tránh conflict nếu sequence bắt đầu từ 1)
-SELECT setval('app_user_seq', 3, false);
+-- Đặt sequence bắt đầu từ 100 (tránh conflict với ID cứng 1, 2)
+SELECT setval('app_user_seq', 100, false);
