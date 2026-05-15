@@ -27,7 +27,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Path("/api/orders")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Authenticated
 @Tag(name = "Đơn Hàng", description = "Quản lý đơn hàng CoolStore")
 public class OrderResource {
 
@@ -37,6 +36,7 @@ public class OrderResource {
     // ── Tạo đơn hàng ────────────────────────────────────────────
 
     @POST
+    @Authenticated
     @Operation(summary = "Tạo đơn hàng mới từ giỏ hàng")
     public Response taoDonHang(@Valid TaoDonHangRequest request) {
         Long userId     = Long.parseLong(jwt.getSubject());
@@ -53,6 +53,7 @@ public class OrderResource {
 
     @GET
     @Path("/cua-toi")
+    @Authenticated
     @Operation(summary = "Lấy danh sách đơn hàng của tôi")
     public Response layDonHangCuaToi() {
         Long userId = Long.parseLong(jwt.getSubject());
@@ -61,6 +62,7 @@ public class OrderResource {
 
     @GET
     @Path("/{id}")
+    @Authenticated
     @Operation(summary = "Xem chi tiết đơn hàng")
     public Response layChiTiet(@PathParam("id") String id) {
         Long userId   = Long.parseLong(jwt.getSubject());

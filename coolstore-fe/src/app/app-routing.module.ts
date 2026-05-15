@@ -2,6 +2,10 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './core/auth.guard';
 
+/**
+ * FIX LỖI 4: Bỏ comment route /admin
+ * Route admin đã bị comment-out trong bản gốc
+ */
 const routes: Routes = [
   // ── Trang công khai ──────────────────────────────────────────
   {
@@ -32,12 +36,13 @@ const routes: Routes = [
   },
 
   // ── Admin (yêu cầu role ADMIN) ────────────────────────────────
-  // {
-  //   path: 'admin',
-  //   canActivate: [AuthGuard],
-  //   data: { requiresAdmin: true },
-  //   loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
-  // },
+  // FIX: Đã bỏ comment để admin có thể truy cập /admin
+  {
+    path: 'admin',
+    canActivate: [AuthGuard],
+    data: { requiresAdmin: true },
+    loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
+  },
 
   { path: '**', redirectTo: '' }
 ];

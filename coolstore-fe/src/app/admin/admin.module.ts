@@ -3,12 +3,14 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 
-import { AdminShellComponent }     from './admin-shell.component';
-import { AdminDashboardComponent } from './dashboard/admin-dashboard.component';
-import { AdminProductsComponent }  from './products/admin-products.component';
-import { AdminInventoryComponent } from './inventory/admin-inventory.component';
-import { AdminOrdersComponent }    from './orders/admin-orders.component';
-import { AdminUsersComponent }     from './users/admin-users.component';
+// ĐÂY LÀ DÒNG BẠN CÒN THIẾU:
+import { AdminShellComponent } from './admin-shell.component';
+
+import { AdminDashboardComponent } from './admin-dashboard.component';
+import { AdminProductsComponent }  from './admin-products.component';
+import { AdminInventoryComponent } from './admin-inventory.component';
+import { AdminOrdersComponent }    from './admin-orders.component';
+import { AdminUsersComponent }     from './admin-users.component';
 
 const routes: Routes = [
   {

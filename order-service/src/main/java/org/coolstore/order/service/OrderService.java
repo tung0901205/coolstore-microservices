@@ -2,66 +2,67 @@ package org.coolstore.order.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import org.coolstore.order.client.InventoryServiceClient;
 import org.coolstore.order.entity.Order;
 import org.coolstore.order.entity.OrderItem;
 import org.coolstore.order.model.OrderDTOs.*;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Xử lý nghiệp vụ đơn hàng */
 @ApplicationScoped
 public class OrderService {
 
     private static final Logger log = Logger.getLogger(OrderService.class);
 
-    // ── Tạo đơn hàng ────────────────────────────────────────────
+    @RestClient
+    InventoryServiceClient inventoryClient;
 
-    /**
-     * Tạo đơn hàng mới từ giỏ hàng của user.
-     * Trả về order với trạng thái CHUA_THANH_TOAN để chờ thanh toán.
-     */
     @Transactional
     public DonHangResponse taoDonHang(Long userId, String tenNguoiDat,
                                       String email, TaoDonHangRequest req) {
-        // Tạo đơn hàng
         Order order = new Order();
-        order.userId            = userId;
-        order.tenNguoiDat       = tenNguoiDat;
-        order.email             = email;
-        order.diaChiGiaoHang    = req.diaChiGiaoHang();
-        order.soDienThoai       = req.soDienThoai();
-        order.ghiChu            = req.ghiChu();
+        order.userId = userId;
+        order.tenNguoiDat = tenNguoiDat;
+        order.email = email;
+        order.diaChiGiaoHang = req.diaChiGiaoHang();
+        order.soDienThoai = req.soDienThoai();
+        order.ghiChu = req.ghiChu();
         order.phuongThucThanhToan = parsePhuongThuc(req.phuongThucThanhToan());
 
-        // Tạo các mặt hàng và tính tổng tiền
         BigDecimal tongTien = BigDecimal.ZERO;
         for (MatHangRequest mhReq : req.cacMatHang()) {
+            if (mhReq.soLuong() <= 0) {
+                throw new BadRequestException("So luong san pham phai lon hon 0.");
+            }
+
             OrderItem item = new OrderItem();
-            item.order       = order;
-            item.itemId      = mhReq.itemId();
-            item.tenSanPham  = mhReq.tenSanPham();
-            item.hinhAnh     = mhReq.hinhAnh();
-            item.donGia      = mhReq.donGia();
-            item.soLuong     = mhReq.soLuong();
+            item.order = order;
+            item.itemId = mhReq.itemId();
+            item.tenSanPham = mhReq.tenSanPham();
+            item.hinhAnh = mhReq.hinhAnh();
+            item.donGia = mhReq.donGia();
+            item.soLuong = mhReq.soLuong();
             order.cacMatHang.add(item);
             tongTien = tongTien.add(item.thanhTien());
         }
         order.tongTien = tongTien;
 
+        kiemTraTonKho(order);
         order.persist();
-        log.infof("Đơn hàng mới: %s - User: %d - Tổng: %.0f VNĐ",
-                order.id, userId, tongTien);
+        truTonKho(order);
 
+        log.infof("Don hang moi: %s - User: %d - Tong: %.0f", order.id, userId, tongTien);
         return DonHangResponse.from(order);
     }
 
-    // ── Lấy danh sách đơn hàng ──────────────────────────────────
-
-    /** Lấy đơn hàng của user hiện tại */
     public List<DonHangResponse> layDonHangCuaToi(Long userId) {
         return Order.findByUserId(userId)
                 .stream()
@@ -69,7 +70,6 @@ public class OrderService {
                 .toList();
     }
 
-    /** Lấy tất cả đơn hàng (Admin) */
     public List<DonHangResponse> layTatCaDonHang() {
         return Order.<Order>list("ORDER BY ngayTao DESC")
                 .stream()
@@ -77,25 +77,17 @@ public class OrderService {
                 .toList();
     }
 
-    /** Lấy chi tiết một đơn hàng */
     public DonHangResponse layChiTietDonHang(String orderId, Long userId, boolean laAdmin) {
         Order order = Order.findById(orderId);
         if (order == null) {
-            throw new NotFoundException("Không tìm thấy đơn hàng: " + orderId);
+            throw new NotFoundException("Khong tim thay don hang: " + orderId);
         }
-        // User thường chỉ xem đơn của mình
         if (!laAdmin && !order.userId.equals(userId)) {
-            throw new NotFoundException("Không tìm thấy đơn hàng: " + orderId);
+            throw new NotFoundException("Khong tim thay don hang: " + orderId);
         }
         return DonHangResponse.from(order);
     }
 
-    // ── Cập nhật từ VNPay callback ──────────────────────────────
-
-    /**
-     * Gọi bởi payment-service khi VNPay callback thành công.
-     * Cập nhật trạng thái đơn hàng sang ĐÃ THANH TOÁN.
-     */
     @Transactional
     public void xacNhanThanhToanVnpay(String maGiaoDich, String txnRef) {
         Order order = Order.findById(txnRef);
@@ -103,45 +95,71 @@ public class OrderService {
             order = Order.findByMaGiaoDich(maGiaoDich);
         }
         if (order == null) {
-            log.warnf("Không tìm thấy đơn hàng để xác nhận: txnRef=%s", txnRef);
+            log.warnf("Khong tim thay don hang de xac nhan: txnRef=%s", txnRef);
             return;
         }
 
         order.trangThaiThanhToan = Order.TrangThaiThanhToan.DA_THANH_TOAN;
-        order.trangThaiDonHang   = Order.TrangThaiDonHang.DA_XAC_NHAN;
-        order.maGiaoDichVnpay    = maGiaoDich;
-        order.ngayThanhToan      = LocalDateTime.now();
+        order.trangThaiDonHang = Order.TrangThaiDonHang.DA_XAC_NHAN;
+        order.maGiaoDichVnpay = maGiaoDich;
+        order.ngayThanhToan = LocalDateTime.now();
 
-        log.infof("Đơn hàng %s đã thanh toán thành công qua VNPay.", order.id);
+        log.infof("Don hang %s da thanh toan thanh cong qua VNPay.", order.id);
     }
 
-    /**
-     * Gọi khi thanh toán VNPay thất bại.
-     */
     @Transactional
     public void huyThanhToanVnpay(String txnRef) {
         Order order = Order.findById(txnRef);
         if (order != null) {
             order.trangThaiDonHang = Order.TrangThaiDonHang.DA_HUY;
-            log.infof("Đơn hàng %s đã bị hủy do thanh toán thất bại.", order.id);
+            log.infof("Don hang %s da bi huy do thanh toan that bai.", order.id);
         }
     }
 
-    /** Admin: Cập nhật trạng thái đơn hàng */
     @Transactional
     public DonHangResponse capNhatTrangThai(String orderId, String trangThai) {
         Order order = Order.findById(orderId);
-        if (order == null) throw new NotFoundException("Không tìm thấy đơn hàng: " + orderId);
+        if (order == null) {
+            throw new NotFoundException("Khong tim thay don hang: " + orderId);
+        }
 
         try {
             order.trangThaiDonHang = Order.TrangThaiDonHang.valueOf(trangThai);
         } catch (Exception e) {
-            throw new jakarta.ws.rs.BadRequestException("Trạng thái không hợp lệ: " + trangThai);
+            throw new BadRequestException("Trang thai khong hop le: " + trangThai);
         }
         return DonHangResponse.from(order);
     }
 
-    // ── Helper ──────────────────────────────────────────────────
+    private void truTonKho(Order order) {
+        for (OrderItem item : order.cacMatHang) {
+            try (Response response = inventoryClient.giamSoLuong(item.itemId, item.soLuong)) {
+                if (response.getStatus() >= 400) {
+                    throw new BadRequestException("Ton kho khong du cho san pham: " + item.tenSanPham);
+                }
+            } catch (WebApplicationException e) {
+                throw new BadRequestException("Ton kho khong du cho san pham: " + item.tenSanPham);
+            } catch (Exception e) {
+                throw new BadRequestException("Khong the cap nhat ton kho cho san pham: " + item.tenSanPham);
+            }
+        }
+    }
+
+    private void kiemTraTonKho(Order order) {
+        for (OrderItem item : order.cacMatHang) {
+            try {
+                InventoryServiceClient.InventorySnapshot inventory = inventoryClient.layTheoItemId(item.itemId);
+                int quantity = inventory != null ? inventory.quantity() : 0;
+                if (quantity < item.soLuong) {
+                    throw new BadRequestException("Ton kho khong du cho san pham: " + item.tenSanPham);
+                }
+            } catch (BadRequestException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new BadRequestException("Khong the kiem tra ton kho cho san pham: " + item.tenSanPham);
+            }
+        }
+    }
 
     private Order.PhuongThucThanhToan parsePhuongThuc(String s) {
         try {

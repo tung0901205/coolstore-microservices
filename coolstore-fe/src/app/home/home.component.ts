@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CatalogService } from '../services/catalog.service';
 import { CartService } from '../services/cart.service';
-import { Product } from '../model/models';
+import { InventoryService } from '../services/inventory.service';
+import { Product, TonKho } from '../model/models';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -24,6 +27,7 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private catalogService: CatalogService,
+    private inventoryService: InventoryService,
     private cartService: CartService,
     private snackBar: MatSnackBar
   ) {}
@@ -35,9 +39,16 @@ export class HomeComponent implements OnInit {
 
   taiSanPham(): void {
     this.dangTai = true;
-    this.catalogService.layTatCaSanPham().subscribe({
-      next: (products) => {
-        this.tatCaSanPham = products;
+    forkJoin({
+      products: this.catalogService.layTatCaSanPham(),
+      inventory: this.inventoryService.layTatCaTonKho().pipe(catchError(() => of([] as TonKho[])))
+    }).subscribe({
+      next: ({ products, inventory }) => {
+        const inventoryByItemId = new Map(inventory.map(i => [i.itemId, i.quantity]));
+        this.tatCaSanPham = products.map(p => ({
+          ...p,
+          quantity: inventoryByItemId.get(p.itemId) ?? p.quantity ?? 0
+        }));
         this.locVaSapXep();
         this.dangTai = false;
       },
@@ -90,6 +101,12 @@ export class HomeComponent implements OnInit {
   }
 
   themVaoGio(product: Product): void {
+    const soLuongCon = this.soLuongTon(product);
+    if (soLuongCon <= 0) {
+      this.snackBar.open('Sản phẩm này chưa có tồn kho để bán.', 'Đóng', { duration: 3000 });
+      return;
+    }
+
     this.cartService.addToCart({
       itemId:   product.itemId,
       name:     product.title,
@@ -102,6 +119,10 @@ export class HomeComponent implements OnInit {
       duration: 2500,
       panelClass: ['snack-success']
     });
+  }
+
+  soLuongTon(product: Product): number {
+    return Math.max(product.quantity ?? 0, 0);
   }
 
   get sanPhamTrangHienTai(): Product[] {

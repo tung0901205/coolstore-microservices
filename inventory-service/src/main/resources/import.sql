@@ -1,35 +1,122 @@
-// Add Inventory data
---CREATE SEQUENCE inventory_seq START 1;
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (1, '1', 'http://maps.google.com/?q=Raleigh', 'Raleigh', 736);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (2, '2', 'http://maps.google.com/?q=Boston', 'Boston', 512);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (3, '3', 'http://maps.google.com/?q=Seoul', 'Seoul', 256);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (4, '4', 'http://maps.google.com/?q=Singapore', 'Singapore', 54);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (5, '5', 'http://maps.google.com/?q=London', 'London', 87);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (6, '6', 'http://maps.google.com/?q=NewYork', 'New York', 443);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (7, '7', 'http://maps.google.com/?q=Paris', 'Paris', 600);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (8, '8', 'http://maps.google.com/?q=Tokyo', 'Tokyo', 230);
+-- ============================================================
+-- INVENTORY SERVICE - import.sql
+-- Tồn kho cho 28 sản phẩm khớp với catalog
+-- SỬA: Thêm ON CONFLICT DO NOTHING để tránh lỗi khi restart
+-- ============================================================
 
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (9, '9', 'http://maps.google.com/?q=Raleigh', 'Raleigh', 736);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (10, '10', 'http://maps.google.com/?q=Boston', 'Boston', 512);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (11, '11', 'http://maps.google.com/?q=Seoul', 'Seoul', 256);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (12, '12', 'http://maps.google.com/?q=Singapore', 'Singapore', 54);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (13, '13', 'http://maps.google.com/?q=London', 'London', 87);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (14, '14', 'http://maps.google.com/?q=NewYork', 'New York', 443);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (15, '15', 'http://maps.google.com/?q=Paris', 'Paris', 600);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (16, '16', 'http://maps.google.com/?q=Tokyo', 'Tokyo', 230);
+-- Thời trang Nam
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(1, '329299', 'http://maps.google.com/?q=Ha+Noi', 'Hà Nội', 150)
+ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (17, '17', 'http://maps.google.com/?q=London', 'London', 87);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (18, '18', 'http://maps.google.com/?q=NewYork', 'New York', 443);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (19, '19', 'http://maps.google.com/?q=Paris', 'Paris', 600);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (20, '20', 'http://maps.google.com/?q=Tokyo', 'Tokyo', 230);
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(2, '329199', 'http://maps.google.com/?q=Ho+Chi+Minh', 'TP.HCM', 200)
+ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (21, '329299', 'http://maps.google.com/?q=Raleigh', 'Raleigh', 736);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (22, '329199', 'http://maps.google.com/?q=Boston', 'Boston', 512);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (23, '165613', 'http://maps.google.com/?q=Seoul', 'Seoul', 256);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (24, '165614', 'http://maps.google.com/?q=Singapore', 'Singapore', 54);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (25, '165954', 'http://maps.google.com/?q=London', 'London', 87);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (26, '444434', 'http://maps.google.com/?q=NewYork', 'New York', 443);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (27, '444435', 'http://maps.google.com/?q=Paris', 'Paris', 600);
-INSERT INTO INVENTORY (id, itemId, link, location, quantity) values (28, '444437', 'http://maps.google.com/?q=Tokyo', 'Tokyo', 230);
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(3, '1', 'http://maps.google.com/?q=Da+Nang', 'Đà Nẵng', 85)
+ON CONFLICT (id) DO NOTHING;
 
---ALTER SEQUENCE inventory_seq RESTART WITH 29;
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(4, '2', 'http://maps.google.com/?q=Ha+Noi', 'Hà Nội', 320)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(5, '3', 'http://maps.google.com/?q=Ho+Chi+Minh', 'TP.HCM', 145)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(6, '4', 'http://maps.google.com/?q=Hai+Phong', 'Hải Phòng', 260)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(7, '444434', 'http://maps.google.com/?q=Ha+Noi', 'Hà Nội', 180)
+ON CONFLICT (id) DO NOTHING;
+
+-- Thời trang Nữ
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(8, '15', 'http://maps.google.com/?q=Da+Lat', 'Đà Lạt', 95)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(9, '16', 'http://maps.google.com/?q=Ho+Chi+Minh', 'TP.HCM', 175)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(10, '17', 'http://maps.google.com/?q=Ha+Noi', 'Hà Nội', 220)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(11, '18', 'http://maps.google.com/?q=Can+Tho', 'Cần Thơ', 410)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(12, '19', 'http://maps.google.com/?q=Nha+Trang', 'Nha Trang', 380)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(13, '20', 'http://maps.google.com/?q=Ho+Chi+Minh', 'TP.HCM', 450)
+ON CONFLICT (id) DO NOTHING;
+
+-- Trang sức
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(14, '5', 'http://maps.google.com/?q=Ha+Noi', 'Hà Nội', 12)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(15, '6', 'http://maps.google.com/?q=Ho+Chi+Minh', 'TP.HCM', 28)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(16, '7', 'http://maps.google.com/?q=Ha+Noi', 'Hà Nội', 65)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(17, '8', 'http://maps.google.com/?q=Da+Nang', 'Đà Nẵng', 90)
+ON CONFLICT (id) DO NOTHING;
+
+-- Điện tử
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(18, '9', 'http://maps.google.com/?q=Ha+Noi', 'Hà Nội', 73)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(19, '10', 'http://maps.google.com/?q=Ho+Chi+Minh', 'TP.HCM', 54)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(20, '11', 'http://maps.google.com/?q=Ha+Noi', 'Hà Nội', 120)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(21, '12', 'http://maps.google.com/?q=Ho+Chi+Minh', 'TP.HCM', 38)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(22, '13', 'http://maps.google.com/?q=Da+Nang', 'Đà Nẵng', 25)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(23, '14', 'http://maps.google.com/?q=Ha+Noi', 'Hà Nội', 8)
+ON CONFLICT (id) DO NOTHING;
+
+-- Phụ kiện
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(24, '165613', 'http://maps.google.com/?q=Ha+Noi', 'Hà Nội', 500)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(25, '165614', 'http://maps.google.com/?q=Ho+Chi+Minh', 'TP.HCM', 230)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(26, '165954', 'http://maps.google.com/?q=Ha+Noi', 'Hà Nội', 75)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(27, '444435', 'http://maps.google.com/?q=Ho+Chi+Minh', 'TP.HCM', 300)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO INVENTORY (id, itemId, link, location, quantity) VALUES
+(28, '444437', 'http://maps.google.com/?q=Ha+Noi', 'Hà Nội', 1200)
+ON CONFLICT (id) DO NOTHING;

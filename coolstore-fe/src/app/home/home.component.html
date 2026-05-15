@@ -125,9 +125,7 @@
                  loading="lazy"
                  onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
             <!-- Badge số lượng -->
-            <span *ngIf="product.quantity === 0"
-                  class="absolute top-2 left-2 badge badge-danger">Hết hàng</span>
-            <span *ngIf="product.quantity > 0 && product.quantity <= 10"
+            <span *ngIf='soLuongTon(product) > 0 && soLuongTon(product) <= 10'
                   class="absolute top-2 left-2 badge badge-warning">Sắp hết</span>
           </div>
 
@@ -141,12 +139,11 @@
               <span class="text-red-600 font-bold text-base">
                 {{ formatGia(product.price) }}
               </span>
-              <span class="text-gray-400 text-xs">Còn {{ product.quantity }}</span>
+              <span class="text-gray-400 text-xs">C�n {{ soLuongTon(product) }}</span>
             </div>
             <button (click)="themVaoGio(product)"
-                    [disabled]="product.quantity === 0"
                     class="btn-primary w-full mt-3 py-2 text-sm">
-              {{ product.quantity === 0 ? 'Hết hàng' : '🛒 Thêm vào giỏ' }}
+              Them vao gio
             </button>
           </div>
         </div>
