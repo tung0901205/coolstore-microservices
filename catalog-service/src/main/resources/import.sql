@@ -7,7 +7,7 @@
 INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
 ('329299', 'Áo Thun taskkill /F /IM java.exeQuarkus', 'Thoi trang nam',
  'Áo thun nam chất liệu cotton 100%, in logo Quarkus nổi bật. Thoáng mát, thấm hút mồ hôi tốt, phù hợp mặc hằng ngày.',
- 10.00, '329299.jpg');
+ 100000.00, '329299.jpg');
 
 INSERT INTO catalog (itemId, title, category, description, price, image) VALUES
 ('329199', 'Áo Thun Kubernetes', 'Thoi trang nam',

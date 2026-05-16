@@ -87,6 +87,9 @@ public class PaymentResource {
                 ip
         );
 
+        // Log URL đầy đủ để kiểm tra
+        log.info("VNPay redirect URL: " + url);
+
         Map<String, String> ket = new HashMap<>();
         ket.put("paymentUrl", url);
         ket.put("orderId", request.orderId());

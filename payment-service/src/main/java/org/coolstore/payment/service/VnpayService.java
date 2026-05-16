@@ -9,6 +9,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Dịch vụ tích hợp VNPay theo tài liệu chính thức:
@@ -74,23 +76,32 @@ public class VnpayService {
         params.put("vnp_Amount",     String.valueOf(soTienVnpay));
         params.put("vnp_CurrCode",   "VND");
         params.put("vnp_TxnRef",     orderId);         // Mã đơn hàng của mình
-        params.put("vnp_OrderInfo",  moTaDonHang);
+//        params.put("vnp_OrderInfo",  moTaDonHang);
+        params.put("vnp_OrderInfo", "Thanh toan don hang " + orderId);
         params.put("vnp_OrderType",  "other");          // Loại hàng hóa (xem docs VNPay)
         params.put("vnp_Locale",     "vn");             // Ngôn ngữ trang VNPay
         params.put("vnp_ReturnUrl",  returnUrl);        // VNPay redirect sau thanh toán
         params.put("vnp_IpAddr",     ipNguoiDung != null ? ipNguoiDung : "127.0.0.1");
         params.put("vnp_CreateDate", thoiGianTao);
-        params.put("vnp_ExpireDate", thoiGianHetHan);
+//        params.put("vnp_ExpireDate", thoiGianHetHan);
 
         // Tạo chuỗi hash (không URL encode value để hash)
-        String chuoiHashData = xayDungChuoiQuery(params, false);
+//        String chuoiHashData = xayDungChuoiQuery(params, false);
+        // Chuỗi để ký
+//        String chuoiHashData = buildQueryRaw(params);
+        String chuoiHashData = buildQueryEncoded(params);
+        // Log chuỗi hash để kiểm tra
+        Logger log = Logger.getLogger(VnpayService.class.getName());
+        log.info("VNPay chuoiHashData: " + chuoiHashData);
 
         // Tạo chuỗi query (URL encode value để ghép URL)
-        String chuoiQuery = xayDungChuoiQuery(params, true);
+//        String chuoiQuery = xayDungChuoiQuery(params, true);
+        String chuoiQuery = buildQueryEncoded(params);
 
         // Ký HMAC-SHA512
         String secureHash = hmacSha512(hashSecret, chuoiHashData);
 
+        log.info("VNPay secureHash: " + secureHash);
         // Ghép URL hoàn chỉnh
         return vnpayUrl + "?" + chuoiQuery + "&vnp_SecureHash=" + secureHash;
     }
@@ -116,7 +127,8 @@ public class VnpayService {
         paramsDeHash.remove("vnp_SecureHashType");
 
         // Tính lại chữ ký từ params còn lại
-        String chuoiDeKy = xayDungChuoiQuery(paramsDeHash, false);
+//        String chuoiDeKy = xayDungChuoiQuery(paramsDeHash, false);
+        String chuoiDeKy = buildQueryRaw(paramsDeHash);
         String chukyTinhToan = hmacSha512(hashSecret, chuoiDeKy);
 
         // So sánh case-insensitive
@@ -141,20 +153,62 @@ public class VnpayService {
      * @param encode true → URL encode value (dùng để ghép URL)
      *               false → không encode (dùng để tạo hash)
      */
+//    private String xayDungChuoiQuery(Map<String, String> params, boolean encode) {
+//        StringBuilder sb = new StringBuilder();
+//        for (Map.Entry<String, String> entry : params.entrySet()) {
+//            if (entry.getValue() == null || entry.getValue().isBlank()) continue;
+//            if (!sb.isEmpty()) sb.append("&");
+//            sb.append(entry.getKey()).append("=");
+//            if (encode) {
+//                sb.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
+//            } else {
+//                sb.append(entry.getValue());
+//            }
+//        }
+//        return sb.toString();
+//    }
+
     private String xayDungChuoiQuery(Map<String, String> params, boolean encode) {
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            if (entry.getValue() == null || entry.getValue().isBlank()) continue;
-            if (!sb.isEmpty()) sb.append("&");
-            sb.append(entry.getKey()).append("=");
-            if (encode) {
-                sb.append(URLEncoder.encode(entry.getValue(), StandardCharsets.US_ASCII));
-            } else {
-                sb.append(entry.getValue());
-            }
-        }
-        return sb.toString();
+        return params.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey()) // sắp xếp key
+                .map(e -> e.getKey() + "=" + (
+                        encode
+                                ? URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8)
+                                : e.getValue()
+                ))
+                .collect(Collectors.joining("&"));
     }
+
+    // Chuỗi để ký (raw, không encode)
+    private String buildQueryRaw(Map<String, String> params) {
+        return params.entrySet().stream()
+                .filter(e -> e.getValue() != null && !e.getValue().isBlank()) // bỏ null/blank
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> e.getKey() + "=" + e.getValue()) // KHÔNG encode
+                .collect(Collectors.joining("&"));
+    }
+
+    // Chuỗi query để gửi đi (encode)
+//    private String buildQueryEncoded(Map<String, String> params) {
+//        return params.entrySet().stream()
+//                .filter(e -> e.getValue() != null && !e.getValue().isBlank())
+//                .sorted(Map.Entry.comparingByKey())
+//                .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+//                .collect(Collectors.joining("&"));
+//    }
+
+    private String buildQueryEncoded(Map<String, String> params) {
+        return params.entrySet().stream()
+                .filter(e -> e.getValue() != null && !e.getValue().isBlank())
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> e.getKey() + "=" + vnpEncode(e.getValue()))
+                .collect(Collectors.joining("&"));
+    }
+
+    private String vnpEncode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
 
     /**
      * Tạo chữ ký HMAC-SHA512 theo yêu cầu VNPay.
