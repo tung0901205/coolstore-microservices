@@ -3,6 +3,7 @@ package org.coolstore.catalog.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.WebApplicationException;
 import org.coolstore.catalog.ProductMapper;
 import org.coolstore.catalog.entity.Catalog;
 import org.coolstore.catalog.model.Inventory;
@@ -20,8 +21,11 @@ public class CatalogService {
 
     private static final Logger log = Logger.getLogger(CatalogService.class);
 
+    @Inject
+    @RestClient
+    InventoryService inventoryClient;
     @Inject CatalogRepository repository;
-    @RestClient InventoryService inventoryService;
+//    @RestClient InventoryService inventoryService;
 
     public List<Product> getAllProductsWithQuantity() {
         return enrichQuantity(ProductMapper.INSTANCE.fromCatalog(repository.listAll()));
@@ -93,16 +97,44 @@ public class CatalogService {
         return repository.deleteById(itemId);
     }
 
+//    private List<Product> enrichQuantity(List<Product> products) {
+//        products.forEach(p -> {
+//            try {
+//                Inventory inventory = inventoryService.getByItemId(p.getItemId());
+//                p.setQuantity(inventory != null ? inventory.quantity : 0);
+//            } catch (Exception e) {
+//                log.warnf("Khong lay duoc ton kho cho san pham %s: %s", p.getItemId(), e.getMessage());
+//                p.setQuantity(0);
+//            }
+//        });
+//        return products;
+//    }
+
+
+
     private List<Product> enrichQuantity(List<Product> products) {
-        products.forEach(p -> {
+        for (Product p : products) {
             try {
-                Inventory inventory = inventoryService.getByItemId(p.getItemId());
-                p.setQuantity(inventory != null ? inventory.quantity : 0);
-            } catch (Exception e) {
-                log.warnf("Khong lay duoc ton kho cho san pham %s: %s", p.getItemId(), e.getMessage());
+                Inventory inv = inventoryClient.getByItemId(p.getItemId());
+                if (inv != null) {
+                    p.setQuantity(inv.quantity);
+                    // nếu muốn lưu location thì thêm field location vào Product
+                } else {
+                    p.setQuantity(0);
+                }
+            } catch (WebApplicationException e) {
+                if (e.getResponse().getStatus() == 404) {
+                    log.debugf("Không có tồn kho cho sản phẩm %s, fallback = 0", p.getItemId());
+                    p.setQuantity(0);
+                } else {
+                    throw e;
+                }
+            } catch (Exception ex) {
+                log.warnf("Lỗi khi lấy tồn kho cho sản phẩm %s: %s", p.getItemId(), ex.getMessage());
                 p.setQuantity(0);
             }
-        });
+        }
         return products;
     }
+
 }

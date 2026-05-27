@@ -128,7 +128,11 @@ public class VnpayService {
 
         // Tính lại chữ ký từ params còn lại
 //        String chuoiDeKy = xayDungChuoiQuery(paramsDeHash, false);
-        String chuoiDeKy = buildQueryRaw(paramsDeHash);
+//        String chuoiDeKy = buildQueryRaw(paramsDeHash);
+        String chuoiDeKy = paramsDeHash.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> e.getKey() + "=" + e.getValue())
+                .collect(Collectors.joining("&"));
         String chukyTinhToan = hmacSha512(hashSecret, chuoiDeKy);
 
         // So sánh case-insensitive

@@ -110,7 +110,7 @@ public class PaymentResource {
     @Path("/vnpay-return")
     @Operation(summary = "VNPay Return URL - redirect sau thanh toán")
     public Response vnpayReturn(@Context UriInfo uriInfo) {
-        Map<String, String> params = layTatCaQueryParams(uriInfo);
+        Map<String, String> params = layRawQueryParams(uriInfo);
 
         String orderId    = params.get("vnp_TxnRef");
         String resCode    = params.get("vnp_ResponseCode");
@@ -119,6 +119,25 @@ public class PaymentResource {
 
         log.infof("VNPay Return: orderId=%s, responseCode=%s, hopLe=%b, thanhCong=%b",
                 orderId, resCode, hopLe, thanhCong);
+
+        try {
+            if (thanhCong) {
+                orderClient.xacNhanThanhToan(
+                        orderId,
+                        params.getOrDefault("vnp_TransactionNo", "")
+                );
+                log.infof("Đơn hàng %s đã thanh toán thành công.", orderId);
+
+            } else {
+                orderClient.huyThanhToan(orderId);
+                log.warnf("Thanh toán thất bại cho order %s", orderId);
+            }
+
+        } catch (Exception e) {
+            log.errorf("Lỗi cập nhật order %s: %s",
+                    orderId,
+                    e.getMessage());
+        }
 
         // Redirect về Angular frontend với query params để hiển thị kết quả
         String frontendUrl;
@@ -154,7 +173,7 @@ public class PaymentResource {
     @Path("/vnpay-ipn")
     @Operation(summary = "VNPay IPN Handler - xử lý xác nhận thanh toán")
     public Response vnpayIpn(@Context UriInfo uriInfo) {
-        Map<String, String> params = layTatCaQueryParams(uriInfo);
+        Map<String, String> params = layRawQueryParams(uriInfo);
 
         String orderId   = params.get("vnp_TxnRef");
         String resCode   = params.get("vnp_ResponseCode");
@@ -207,14 +226,40 @@ public class PaymentResource {
     // ── Helper ──────────────────────────────────────────────────
 
     /** Thu thập tất cả query params thành Map<String, String> */
-    private Map<String, String> layTatCaQueryParams(UriInfo uriInfo) {
-        return uriInfo.getQueryParameters()
-                .entrySet()
-                .stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> e.getValue().isEmpty() ? "" : e.getValue().get(0)
-                ));
+//    private Map<String, String> layTatCaQueryParams(UriInfo uriInfo) {
+//        return uriInfo.getQueryParameters()
+//                .entrySet()
+//                .stream()
+//                .collect(Collectors.toMap(
+//                        Map.Entry::getKey,
+//                        e -> e.getValue().isEmpty() ? "" : e.getValue().get(0)
+//                ));
+//    }
+
+    private Map<String, String> layRawQueryParams(UriInfo uriInfo) {
+
+        String rawQuery = uriInfo.getRequestUri().getRawQuery();
+
+        Map<String, String> map = new HashMap<>();
+
+        if (rawQuery == null || rawQuery.isBlank()) {
+            return map;
+        }
+
+        for (String pair : rawQuery.split("&")) {
+
+            int idx = pair.indexOf("=");
+
+            if (idx > 0) {
+
+                String key = pair.substring(0, idx);
+                String value = pair.substring(idx + 1);
+
+                map.put(key, value);
+            }
+        }
+
+        return map;
     }
 
     /** Lấy IP thực của người dùng (xử lý proxy/load balancer) */
