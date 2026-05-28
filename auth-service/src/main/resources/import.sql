@@ -6,7 +6,7 @@ VALUES (1,
         'admin',
         'admin@coolstore.vn',
         'Quan Tri Vien',
-        '$2a$12$zaztO6ACquKLwTGZJExTQOZ5jK86f0nK/S1m/wDXhpkW2IV9/LOX2',
+        '$2a$12$I6NdrkWu3sKk9xk5ElULR.6V1e8Yz6tIoWq9CY3tgsdJuE/zCRKY2',
         'ADMIN',
         true,
         NOW())

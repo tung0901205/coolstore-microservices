@@ -236,11 +236,11 @@
     <h2>⚙ Cấu hình URL các Service</h2>
     <div class="field-group">
       <label class="field-label">Auth Service</label>
-      <input class="field-input" id="cfg-auth" value="http://localhost:8089/api">
+      <input class="field-input" id="cfg-auth" value="http://localhost:8080/api">
     </div>
     <div class="field-group">
       <label class="field-label">Catalog Service</label>
-      <input class="field-input" id="cfg-catalog" value="http://localhost:8082/api">
+      <input class="field-input" id="cfg-catalog" value="http://localhost:8080/api">
     </div>
     <div class="field-group">
       <label class="field-label">Inventory Service</label>
@@ -265,8 +265,8 @@
 <script>
   // ── Config ──────────────────────────────────────────────────
   let CFG = {
-    auth:      'http://localhost:8089/api',
-    catalog:   'http://localhost:8082/api',
+    auth:      'http://localhost:8080/api',
+    catalog:   'http://localhost:8080/api',
     inventory: 'http://localhost:8081/api',
     order:     'http://localhost:8086/api',
     token:     ''
